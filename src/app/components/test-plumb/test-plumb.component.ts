@@ -216,9 +216,11 @@ export class TestPlumbComponent implements OnInit {
           newItem.style.top = e.clientY - 40 + 'px';
         });
         // mouse up
-        window.addEventListener('mouseup', function () {
+        const windowMouseUp = (): void => {
           document.body.removeChild(newItem);
-        }, true);
+          window.removeEventListener('mouseup', windowMouseUp);
+        };
+        window.addEventListener('mouseup', windowMouseUp);
       });
     }
   }
