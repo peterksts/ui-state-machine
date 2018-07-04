@@ -1,0 +1,14 @@
+.item {
+  height:80px; width: 80px;
+  border: 1px solid blue;
+  float: left;
+}
+
+.ball {
+  border-radius: 45px;
+}
+
+.diamond {
+  transform: rotate(45deg);
+  overflow: hidden;
+}
