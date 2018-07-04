@@ -9,3 +9,14 @@
   border: 1px solid blue;
   float: left;
 }
+
+.diamond {
+  transform: rotate(45deg);
+  overflow: hidden;
+}
+
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}

@@ -18,8 +18,8 @@ export class TestPlumbComponent implements OnInit {
     // add endpoints
     this.jsPlumbInstance.addEndpoint('item_left',
       {
-        anchor: 'Right',
-        maxConnections: 1,
+        anchor: 'Top',
+        maxConnections: 2,
         parameters: {},
         id: 'item_left_right',
         scope: '1.0',
@@ -27,7 +27,7 @@ export class TestPlumbComponent implements OnInit {
         type: 'Dot',
         isSource: true,
         isTarget: true,
-        connector: 'Straight',
+        connector: 'Bezier',
         paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
         hoverPaintStyle: {stroke: 'lightblue'},
         connectorStyle: {stroke: 'green', strokeWidth: 1},
@@ -37,7 +37,7 @@ export class TestPlumbComponent implements OnInit {
     this.jsPlumbInstance.addEndpoint('item_right',
       {
         anchor: 'Right',
-        maxConnections: 1,
+        maxConnections: 2,
         parameters: {},
         id: 'item_right_right',
         scope: '1.0',
@@ -45,7 +45,7 @@ export class TestPlumbComponent implements OnInit {
         type: 'Dot',
         isSource: true,
         isTarget: true,
-        connector: 'Straight',
+        connector: 'Bezier',
         paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
         hoverPaintStyle: {stroke: 'lightblue'},
         connectorStyle: {stroke: 'green', strokeWidth: 1},
@@ -54,7 +54,7 @@ export class TestPlumbComponent implements OnInit {
     //
     this.jsPlumbInstance.addEndpoint('item_right',
       {
-        anchor: 'Left',
+        anchor: [0, 0.3],
         maxConnections: 2,
         parameters: {},
         id: 'item_right_left',
@@ -63,7 +63,7 @@ export class TestPlumbComponent implements OnInit {
         type: 'Dot',
         isSource: true,
         isTarget: true,
-        connector: 'Straight',
+        connector: 'Bezier',
         paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
         hoverPaintStyle: {stroke: 'lightblue'},
         connectorStyle: {stroke: 'green', strokeWidth: 1},
@@ -72,7 +72,7 @@ export class TestPlumbComponent implements OnInit {
     //
     this.jsPlumbInstance.addEndpoint('item_right',
       {
-        anchor: 'TopLeft',
+        anchor: [0, 0.7],
         maxConnections: 2,
         parameters: {},
         id: 'item_right_left_2',
@@ -81,18 +81,39 @@ export class TestPlumbComponent implements OnInit {
         type: 'Dot',
         isSource: true,
         isTarget: true,
-        connector: 'Straight',
+        connector: 'Bezier',
         paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
         hoverPaintStyle: {stroke: 'lightblue'},
         connectorStyle: {stroke: 'green', strokeWidth: 1},
         connectorHoverStyle: {strokeWidth: 2}
       });
     //
+    this.jsPlumbInstance.addEndpoint('item_bottom',
+      {
+        anchor: [-0.1, 0.5],
+        maxConnections: 2,
+        parameters: {},
+        id: 'item_bottom_left',
+        scope: '1.0',
+        reattachConnections: true,
+        type: 'Dot',
+        isSource: true,
+        isTarget: true,
+        connector: 'Bezier',
+        paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
+        hoverPaintStyle: {stroke: 'lightblue'},
+        connectorStyle: {stroke: 'green', strokeWidth: 1},
+        connectorHoverStyle: {strokeWidth: 2}
+      });
+    //
+    main = this;
+    this.jsPlumbInstance.repaintEverything();
+    //
     this.addListener();
   }
 
   private addListener(): void {
-    const main = this;
+    const mainDiv = document.getElementById('diagramContainer');
     const divAll = document.getElementById('diagramContainer').
       querySelectorAll('div');
     // set EventListener
@@ -108,13 +129,17 @@ export class TestPlumbComponent implements OnInit {
         mouse_start_x = e.clientX;
         mouse_start_y = e.clientY;
         // mouse move
-        div.addEventListener('mousemove', main.moveItem);
-      });
-      // mouse up
-      div.addEventListener('mouseup', function () {
-        div.removeEventListener('mousemove', main.moveItem);
+        mainDiv.addEventListener('mousemove', main.moveItem);
+        // mouse up
+        document.addEventListener('mouseup', function () {
+          mainDiv.removeEventListener('mousemove', main.moveItem);
+        });
       });
     }
+    // mouse out
+    // mainDiv.addEventListener('mouseout', function () {
+    //   mainDiv.removeEventListener('mousemove', main.moveItem);
+    // });
   }
 
   private moveItem(even): void {
@@ -141,9 +166,12 @@ export class TestPlumbComponent implements OnInit {
     mouse_start_y = even.clientY;
     move_div.style.left = new_position_x + 'px';
     move_div.style.top = new_position_y + 'px';
+    // reset
+    main.jsPlumbInstance.repaintEverything();
   }
 }
 
 let mouse_start_x;
 let mouse_start_y;
 let move_div;
+let main;
