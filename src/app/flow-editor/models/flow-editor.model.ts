@@ -40,6 +40,8 @@ export class FlowEditor {
     const newTask = document.createElement('div');
     newTask.classList.add('flow-editor-task');
     newTask.id = newTaskId;
+    newTask.style.left = config.left ? config.left : '0px';
+    newTask.style.top = config.top ? config.top : '0px';
     this.container.appendChild(newTask);
     // debugger;
     // create task ports
@@ -65,6 +67,9 @@ export class FlowEditor {
     //
   }
 
+  public getContainerId(): string {
+    return this.containerId;
+  }
 }
 
 
