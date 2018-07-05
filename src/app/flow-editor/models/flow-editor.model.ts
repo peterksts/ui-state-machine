@@ -88,7 +88,7 @@ export class FlowEditor {
 
     anchors.forEach((anchor, index) => {
       portOptions.anchor = anchor;
-      portOptions.id = taskId + '-' + 'port-' + index + '_' + new Date().getTime();
+      portOptions.id = taskId + '-' + 'port-' + index + '_in_' + new Date().getTime();
       this.jsPlumbInstance.addEndpoint(taskId, portOptions);
     });
   }
@@ -111,7 +111,7 @@ export class FlowEditor {
 
     anchors.forEach((anchor, index) => {
       portOptions.anchor = anchor;
-      portOptions.id = taskId + '-' + 'port-' + index + '_' + new Date().getTime();
+      portOptions.id = taskId + '-' + 'port-' + index + '_out_' + new Date().getTime();
       this.jsPlumbInstance.addEndpoint(taskId, portOptions);
     });
   }

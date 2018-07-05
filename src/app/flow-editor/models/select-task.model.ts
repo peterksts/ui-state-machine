@@ -2,22 +2,24 @@ import { FlowEditor } from './flow-editor.model';
 import { Tasks } from '../services/tasks.const';
 
 export class SelectTask {
-  private flowEditor: FlowEditor;
-  private selectTaskId: string;
-  private panelTask: HTMLElement;
 
-  constructor(flowEditor: FlowEditor, selectTaskId: string) {
+  private flowEditor: FlowEditor;
+  private panelTaskId: string;
+  private elementPanelTask: HTMLElement;
+
+  constructor(flowEditor: FlowEditor, panelTaskId: string) {
     this.flowEditor = flowEditor;
-    this.selectTaskId = selectTaskId;
+    this.panelTaskId = panelTaskId;
+    // TODO: settings ! not timeout !
     setTimeout(() => {
-      this.panelTask = document.getElementById(selectTaskId);
+      this.elementPanelTask = document.getElementById(panelTaskId);
       // add event listener
       this.addEventListenerToPanelTask();
     }, 200);
   }
 
   addEventListenerToPanelTask(): void {
-    const allTask = this.panelTask.querySelectorAll('div');
+    const allTask = this.elementPanelTask.querySelectorAll('div');
     const flowEditor = this.flowEditor;
     const getCenterElement = this.getCenterElement;
 
