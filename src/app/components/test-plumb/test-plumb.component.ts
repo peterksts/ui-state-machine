@@ -15,6 +15,7 @@ export class TestPlumbComponent implements OnInit {
   private move_div;
   private main;
   //
+  private count_item: number = 0;
 
   constructor() { }
 
@@ -178,12 +179,18 @@ export class TestPlumbComponent implements OnInit {
     this.move_div.style.top = new_position_y + 'px';
     // repaint plumb
     this.main.jsPlumbInstance.repaintEverything();
+    //
+    const rect = document.getElementById('diagramContainer').getBoundingClientRect();
+    if (rect.top > even.clientY || rect.bottom < even.clientY || rect.left > even.clientX || rect.right < even.clientX) {
+      document.getElementById('diagramContainer').removeEventListener('mousemove', this.moveItem);
+    }
   }
 
   // add item
   private addSelectItems() {
     const all_items_for_select = document.getElementById('diagramSelect').
     querySelectorAll('div');
+    const main_ = this.main;
     //
     for (let i = 0; i < all_items_for_select.length; i++) {
       const div = all_items_for_select.item(i);
@@ -216,8 +223,13 @@ export class TestPlumbComponent implements OnInit {
           newItem.style.top = e.clientY - 40 + 'px';
         });
         // mouse up
-        const windowMouseUp = (): void => {
+        const windowMouseUp = (e): void => {
           document.body.removeChild(newItem);
+          const rect = document.getElementById('diagramContainer').getBoundingClientRect();
+          if (rect.top < e.clientY && rect.bottom > e.clientY && rect.left < e.clientX && rect.right > e.clientX) {
+            main_.addItem(newItem.getAttribute('class'), e.clientX, e.clientY);
+          }
+          //
           window.removeEventListener('mouseup', windowMouseUp);
         };
         window.addEventListener('mouseup', windowMouseUp);
@@ -225,4 +237,34 @@ export class TestPlumbComponent implements OnInit {
     }
   }
   //
+  addItem(type: string, x, y): void {
+    const newItem = document.createElement('div');
+    newItem.setAttribute('class', type);
+    newItem.style.position = 'absolute';
+    newItem.style.left = x - 40 + 'px';
+    newItem.style.top = y - 40 + 'px';
+    newItem.setAttribute('name', 'item_box');
+    this.count_item++;
+    newItem.id = 'new_item_' + this.count_item;
+    document.getElementById('diagramContainer').appendChild(newItem);
+    this.addListener();
+    //
+    this.jsPlumbInstance.addEndpoint(newItem.id,
+      {
+        anchor: 'Top',
+        maxConnections: 2,
+        parameters: {},
+        id: 'endpoint_' + newItem.id,
+        scope: '1.0',
+        reattachConnections: true,
+        type: 'Dot',
+        isSource: true,
+        isTarget: true,
+        connector: 'Bezier',
+        paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
+        hoverPaintStyle: {stroke: 'lightblue'},
+        connectorStyle: {stroke: 'green', strokeWidth: 1},
+        connectorHoverStyle: {strokeWidth: 2}
+      });
+  }
 }
