@@ -1,4 +1,5 @@
-import {FlowEditor} from './flow-editor.model';
+import { FlowEditor } from './flow-editor.model';
+import { Tasks } from '../services/tasks.const';
 
 export class SelectTask {
   private flowEditor: FlowEditor;
@@ -36,14 +37,22 @@ export class SelectTask {
           newTask.style.top = even.clientY + 'px';
         });
 
+        const configs = Tasks;
+        let config: any = {};
+        configs.forEach((conf) => {
+          if (conf.title !== newTask.innerHTML) { return; }
+
+          config = conf;
+        });
+
         const windowMouseUp = (even): void => {
           document.body.removeChild(newTask);
+
           const rect = document.getElementById(flowEditor.getContainerId()).getBoundingClientRect();
           if (rect.top < even.clientY && rect.bottom > even.clientY && rect.left < even.clientX && rect.right > even.clientX) {
-            flowEditor.createNewTask({
-                left: (even.clientX - rect.left) + 'px',
-                top: (even.clientY - rect.top) + 'px',
-            });
+            config.x = (even.clientX - rect.left) + 'px';
+            config.y = (even.clientY - rect.top) + 'px';
+            flowEditor.createNewTask(config);
           }
 
           window.removeEventListener('mouseup', windowMouseUp);
