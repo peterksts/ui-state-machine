@@ -19,28 +19,31 @@ export class SelectTask {
   addEventListenerToPanelTask(): void {
     const allTask = this.panelTask.querySelectorAll('div');
     const flowEditor = this.flowEditor;
-    //
+    const getCenterElement = this.getCenterElement;
+
     for (let i = 0; i < allTask.length; i++) {
       const task = allTask.item(i);
-      //
-      task.addEventListener('mousedown', function (e) {
+
+      task.addEventListener('mousedown', function (e): void {
         const newTask = document.createElement('div');
         newTask.className = this.className;
         newTask.innerHTML = this.innerHTML;
         newTask.style.position = 'absolute';
-        newTask.style.left = (e.clientX - 5) + 'px';
-        newTask.style.top = (e.clientY - 5) + 'px';
         document.body.appendChild(newTask);
 
-        window.addEventListener('mousemove', function(even) {
-          newTask.style.left = (even.clientX - 5) + 'px';
-          newTask.style.top = (even.clientY - 5) + 'px';
+        let centerElementNewTask = getCenterElement(newTask);
+        newTask.style.left = (e.clientX - centerElementNewTask.x) + 'px';
+        newTask.style.top = (e.clientY - centerElementNewTask.y) + 'px';
+
+        window.addEventListener('mousemove', (even): void => {
+          newTask.style.left = (even.clientX - centerElementNewTask.x) + 'px';
+          newTask.style.top = (even.clientY - centerElementNewTask.y) + 'px';
         });
 
         const configs = Tasks;
         let config: any = {};
         configs.forEach((conf) => {
-          if (conf.title !== newTask.innerHTML) { return; }
+          if (conf.title !== newTask.innerText) { return; }
 
           config = conf;
         });
@@ -50,9 +53,13 @@ export class SelectTask {
 
           const rect = document.getElementById(flowEditor.getContainerId()).getBoundingClientRect();
           if (rect.top < even.clientY && rect.bottom > even.clientY && rect.left < even.clientX && rect.right > even.clientX) {
-            config.x = (even.clientX - rect.left) + 'px';
-            config.y = (even.clientY - rect.top) + 'px';
-            flowEditor.createNewTask(config);
+            const idElementNewTask = flowEditor.createNewTask(config);
+            const newElementInFlowEditor = document.getElementById(idElementNewTask);
+
+            centerElementNewTask = getCenterElement(newElementInFlowEditor);
+            newElementInFlowEditor.style.left = even.clientX - rect.left - centerElementNewTask.x + 'px';
+            newElementInFlowEditor.style.top = even.clientY - rect.top - centerElementNewTask.y + 'px';
+            flowEditor.repaintAllEndpoint();
           }
 
           window.removeEventListener('mouseup', windowMouseUp);
@@ -61,5 +68,13 @@ export class SelectTask {
         window.addEventListener('mouseup', windowMouseUp);
       });
     }
+  }
+
+  getCenterElement(element: HTMLElement): {x: number, y: number} {
+    const rect = element.getBoundingClientRect();
+    const x = (rect.right - rect.left) / 2;
+    const y = (rect.bottom - rect.top) / 2;
+
+    return {x: x, y: y};
   }
 }

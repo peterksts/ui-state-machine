@@ -10,7 +10,7 @@
 // mouseMove: Event;
 // mouseUp: Event;
 
-import {jsPlumb, jsPlumbInstance} from 'jsplumb';
+import {EndpointOptions, jsPlumb, jsPlumbInstance} from 'jsplumb';
 
 enum EditorMode {
   Creating,
@@ -34,7 +34,8 @@ export class FlowEditor {
     // this.addListener();
   }
 
-  public createNewTask(config: any) {
+  // createNewTask and return id element new task
+  public createNewTask(config: any): string {
     // create task body
     const newTaskId = 'task-' + new Date().getTime();
     const newTask = document.createElement('div');
@@ -42,10 +43,11 @@ export class FlowEditor {
     newTask.id = newTaskId;
     newTask.style.left = config.x ? config.x : '10px';
     newTask.style.top = config.y ? config.y : '10px';
+    newTask.innerText = config ? config.title ? config.title : '' : '';
     this.container.appendChild(newTask);
     // debugger;
     // create task ports
-    const newPortId = 'port-' + new Date().getTime();
+    const newPortId = newTaskId + '-' + 'port-' + new Date().getTime();
     const portOptions = {
       anchor: [0, 0.7],
       maxConnections: 1,
@@ -58,9 +60,60 @@ export class FlowEditor {
       isTarget: true,
       connector: 'Bezier',
     };
-    this.jsPlumbInstance.addEndpoint(newTaskId, portOptions);
+    const countInput = config ? config.inputPorts ? config.inputPorts.length : 0 : 0;
+    const countOutput = config ? config.outputPorts ? config.outputPorts.length : 0 : 0;
+    this.addEndpointInputPorts(newTaskId, portOptions, countInput);
+    this.addEndpointOutputPorts(newTaskId, portOptions, countOutput);
 
     this.jsPlumbInstance.repaintEverything();
+
+    return newTaskId;
+  }
+
+  private addEndpointInputPorts(taskId: string, portOptions: EndpointOptions, count: number): void {
+    if (count === 0) { return; }
+
+    let anchors = [[0.5, 0]];
+    if (count > 1) {
+      anchors = [];
+      count += 1;
+      let coordination = 1 / count;
+      const coordinationIterator = coordination;
+
+      for (let i = 2; i <= count; i++) {
+        anchors.push([coordination, 0]);
+        coordination += coordinationIterator;
+      }
+    }
+
+    anchors.forEach((anchor, index) => {
+      portOptions.anchor = anchor;
+      portOptions.id = taskId + '-' + 'port-' + index + '_' + new Date().getTime();
+      this.jsPlumbInstance.addEndpoint(taskId, portOptions);
+    });
+  }
+
+  private addEndpointOutputPorts(taskId: string, portOptions: EndpointOptions, count: number): void {
+    if (count === 0) { return; }
+
+    let anchors = [[0.5, 1]];
+    if (count > 1) {
+      anchors = [];
+      count += 1;
+      let coordination = 1 / count;
+      const coordinationIterator = coordination;
+
+      for (let i = 2; i <= count; i++) {
+        anchors.push([coordination, 1]);
+        coordination += coordinationIterator;
+      }
+    }
+
+    anchors.forEach((anchor, index) => {
+      portOptions.anchor = anchor;
+      portOptions.id = taskId + '-' + 'port-' + index + '_' + new Date().getTime();
+      this.jsPlumbInstance.addEndpoint(taskId, portOptions);
+    });
   }
 
   public showAvailablePorts() {
@@ -69,6 +122,10 @@ export class FlowEditor {
 
   public getContainerId(): string {
     return this.containerId;
+  }
+
+  public repaintAllEndpoint(): void {
+    this.jsPlumbInstance.repaintEverything();
   }
 }
 

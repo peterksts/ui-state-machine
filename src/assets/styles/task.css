@@ -37,10 +37,13 @@
   position: absolute;
   display: block;
   width: 200px;
-  height: 50px;
   border-radius: 10px;
   background: white;
   border: 2px solid cadetblue;
+  height: 50px;
+  /* TODO: test parameters */
+  line-height: 50px;
+  text-align: center;
 }
 
 .flow-editor .minimap {
