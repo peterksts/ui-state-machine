@@ -38,10 +38,10 @@ export class FlowEditor {
     // create task body
     const newTaskId = 'task-' + new Date().getTime();
     const newTask = document.createElement('div');
-    newTask.classList.add('task3');
+    newTask.classList.add('flow-editor-task');
+    newTask.id = newTaskId;
     this.container.appendChild(newTask);
-    //debugger;
-    return;
+    // debugger;
     // create task ports
     const newPortId = 'port-' + new Date().getTime();
     const portOptions = {

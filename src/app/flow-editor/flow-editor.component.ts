@@ -25,6 +25,6 @@ export class FlowEditorComponent implements OnInit {
 
     this.flowEditor = new FlowEditor('flow-editor');
     this.flowEditor.createNewTask({});
-    this.minimap = new Minimap('minimap');
+    this.minimap = new Minimap('minimap', {});
   }
 }
