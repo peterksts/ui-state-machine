@@ -1,0 +1,57 @@
+.flow-editor-root {
+  height: 100%;
+}
+
+.flow-editor-root .row {
+  height: 100%;
+}
+
+.flow-editor-root .row > div {
+  height: 100%;
+}
+
+.flow-editor {
+  position: relative;
+  background: lightgray;
+  height: 100%;
+}
+
+.flow-editor-task {
+  position: absolute;
+  display: block;
+  width: 200px;
+  height: 50px;
+  border-radius: 10px;
+  background: white;
+  border: 2px solid cadetblue;
+}
+
+#task1 {
+  left: 100px;
+  top: 50px;
+}
+
+#task2 {
+  left: 200px;
+  top: 300px;
+}
+
+.flow-editor .minimap {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 100px;
+  height: 100px;
+  background: white;
+}
+
+.flow-editor .minimap .minimap-view {
+  border: 1px solid dodgerblue;
+  background: #dddddd;
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  width: 30px;
+  height: 40px;
+}

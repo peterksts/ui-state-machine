@@ -22,95 +22,95 @@ export class TestPlumbComponent implements OnInit {
     this.jsPlumbInstance = jsPlumb.getInstance();
     this.jsPlumbInstance.setContainer('diagramContainer');
     // add endpoints
-    this.jsPlumbInstance.addEndpoint('item_left',
-      {
-        anchor: 'Top',
-        maxConnections: 2,
-        parameters: {},
-        id: 'item_left_right',
-        scope: '1.0',
-        reattachConnections: true,
-        type: 'Dot',
-        isSource: true,
-        isTarget: true,
-        connector: 'Bezier',
-        paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
-        hoverPaintStyle: {stroke: 'lightblue'},
-        connectorStyle: {stroke: 'green', strokeWidth: 1},
-        connectorHoverStyle: {strokeWidth: 2}
-      });
-    //
-    this.jsPlumbInstance.addEndpoint('item_right',
-      {
-        anchor: 'Right',
-        maxConnections: 2,
-        parameters: {},
-        id: 'item_right_right',
-        scope: '1.0',
-        reattachConnections: true,
-        type: 'Dot',
-        isSource: true,
-        isTarget: true,
-        connector: 'Bezier',
-        paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
-        hoverPaintStyle: {stroke: 'lightblue'},
-        connectorStyle: {stroke: 'green', strokeWidth: 1},
-        connectorHoverStyle: {strokeWidth: 2}
-      });
-    //
-    this.jsPlumbInstance.addEndpoint('item_right',
-      {
-        anchor: [0, 0.3],
-        maxConnections: 2,
-        parameters: {},
-        id: 'item_right_left',
-        scope: '1.0',
-        reattachConnections: true,
-        type: 'Dot',
-        isSource: true,
-        isTarget: true,
-        connector: 'Bezier',
-        paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
-        hoverPaintStyle: {stroke: 'lightblue'},
-        connectorStyle: {stroke: 'green', strokeWidth: 1},
-        connectorHoverStyle: {strokeWidth: 2}
-      });
-    //
-    this.jsPlumbInstance.addEndpoint('item_right',
-      {
-        anchor: [0, 0.7],
-        maxConnections: 2,
-        parameters: {},
-        id: 'item_right_left_2',
-        scope: '1.0',
-        reattachConnections: true,
-        type: 'Dot',
-        isSource: true,
-        isTarget: true,
-        connector: 'Bezier',
-        paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
-        hoverPaintStyle: {stroke: 'lightblue'},
-        connectorStyle: {stroke: 'green', strokeWidth: 1},
-        connectorHoverStyle: {strokeWidth: 2}
-      });
-    //
-    this.jsPlumbInstance.addEndpoint('item_bottom',
-      {
-        anchor: [-0.1, 0.5],
-        maxConnections: 2,
-        parameters: {},
-        id: 'item_bottom_left',
-        scope: '1.0',
-        reattachConnections: true,
-        type: 'Dot',
-        isSource: true,
-        isTarget: true,
-        connector: 'Bezier',
-        paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
-        hoverPaintStyle: {stroke: 'lightblue'},
-        connectorStyle: {stroke: 'green', strokeWidth: 1},
-        connectorHoverStyle: {strokeWidth: 2}
-      });
+    // this.jsPlumbInstance.addEndpoint('item_left',
+    //   {
+    //     anchor: 'Top',
+    //     maxConnections: 2,
+    //     parameters: {},
+    //     id: 'item_left_right',
+    //     scope: '1.0',
+    //     reattachConnections: true,
+    //     type: 'Dot',
+    //     isSource: true,
+    //     isTarget: true,
+    //     connector: 'Bezier',
+    //     paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
+    //     hoverPaintStyle: {stroke: 'lightblue'},
+    //     connectorStyle: {stroke: 'green', strokeWidth: 1},
+    //     connectorHoverStyle: {strokeWidth: 2}
+    //   });
+    // //
+    // this.jsPlumbInstance.addEndpoint('item_right',
+    //   {
+    //     anchor: 'Right',
+    //     maxConnections: 2,
+    //     parameters: {},
+    //     id: 'item_right_right',
+    //     scope: '1.0',
+    //     reattachConnections: true,
+    //     type: 'Dot',
+    //     isSource: true,
+    //     isTarget: true,
+    //     connector: 'Bezier',
+    //     paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
+    //     hoverPaintStyle: {stroke: 'lightblue'},
+    //     connectorStyle: {stroke: 'green', strokeWidth: 1},
+    //     connectorHoverStyle: {strokeWidth: 2}
+    //   });
+    // //
+    // this.jsPlumbInstance.addEndpoint('item_right',
+    //   {
+    //     anchor: [0, 0.3],
+    //     maxConnections: 2,
+    //     parameters: {},
+    //     id: 'item_right_left',
+    //     scope: '1.0',
+    //     reattachConnections: true,
+    //     type: 'Dot',
+    //     isSource: true,
+    //     isTarget: true,
+    //     connector: 'Bezier',
+    //     paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
+    //     hoverPaintStyle: {stroke: 'lightblue'},
+    //     connectorStyle: {stroke: 'green', strokeWidth: 1},
+    //     connectorHoverStyle: {strokeWidth: 2}
+    //   });
+    // //
+    // this.jsPlumbInstance.addEndpoint('item_right',
+    //   {
+    //     anchor: [0, 0.7],
+    //     maxConnections: 2,
+    //     parameters: {},
+    //     id: 'item_right_left_2',
+    //     scope: '1.0',
+    //     reattachConnections: true,
+    //     type: 'Dot',
+    //     isSource: true,
+    //     isTarget: true,
+    //     connector: 'Bezier',
+    //     paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
+    //     hoverPaintStyle: {stroke: 'lightblue'},
+    //     connectorStyle: {stroke: 'green', strokeWidth: 1},
+    //     connectorHoverStyle: {strokeWidth: 2}
+    //   });
+    // //
+    // this.jsPlumbInstance.addEndpoint('item_bottom',
+    //   {
+    //     anchor: [-0.1, 0.5],
+    //     maxConnections: 2,
+    //     parameters: {},
+    //     id: 'item_bottom_left',
+    //     scope: '1.0',
+    //     reattachConnections: true,
+    //     type: 'Dot',
+    //     isSource: true,
+    //     isTarget: true,
+    //     connector: 'Bezier',
+    //     paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
+    //     hoverPaintStyle: {stroke: 'lightblue'},
+    //     connectorStyle: {stroke: 'green', strokeWidth: 1},
+    //     connectorHoverStyle: {strokeWidth: 2}
+    //   });
     //
     this.main = this;
     this.jsPlumbInstance.repaintEverything();
