@@ -179,6 +179,11 @@ export class TestPlumbComponent implements OnInit {
     this.move_div.style.top = new_position_y + 'px';
     // repaint plumb
     this.main.jsPlumbInstance.repaintEverything();
+    //
+    const rect = document.getElementById('diagramContainer').getBoundingClientRect();
+    if (rect.top > even.clientY || rect.bottom < even.clientY || rect.left > even.clientX || rect.right < even.clientX) {
+      document.getElementById('diagramContainer').removeEventListener('mousemove', this.moveItem);
+    }
   }
 
   // add item
