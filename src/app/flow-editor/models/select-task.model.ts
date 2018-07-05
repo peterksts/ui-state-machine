@@ -28,13 +28,13 @@ export class SelectTask {
         newTask.className = this.className;
         newTask.innerHTML = this.innerHTML;
         newTask.style.position = 'absolute';
-        newTask.style.left = e.clientX + 'px';
-        newTask.style.top = e.clientY + 'px';
+        newTask.style.left = (e.clientX - 5) + 'px';
+        newTask.style.top = (e.clientY - 5) + 'px';
         document.body.appendChild(newTask);
 
         window.addEventListener('mousemove', function(even) {
-          newTask.style.left = even.clientX + 'px';
-          newTask.style.top = even.clientY + 'px';
+          newTask.style.left = (even.clientX - 5) + 'px';
+          newTask.style.top = (even.clientY - 5) + 'px';
         });
 
         const configs = Tasks;

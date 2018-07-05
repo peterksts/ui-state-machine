@@ -5,7 +5,8 @@
         <ngb-panel title="Simple">
           <ng-template ngbPanelContent>
             <div id="select-task">
-              <div class="badge badge-success" *ngFor="let task of tasksLibrary">
+              <div class="badge badge-success select-task" *ngFor="let task of tasksLibrary"
+                   onselectstart="return false" onmousedown="return false">
                 {{task.title}}
               </div>
             </div>
