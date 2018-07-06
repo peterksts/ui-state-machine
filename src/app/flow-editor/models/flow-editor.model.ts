@@ -35,17 +35,16 @@ export class FlowEditor {
   }
 
   // createNewTask and return id element new task
-  public createNewTask(config: any): string {
+  public createNewTask(config: any, pos?: any): string {
     // create task body
     const newTaskId = 'task-' + new Date().getTime();
     const newTask = document.createElement('div');
     newTask.classList.add('flow-editor-task');
     newTask.id = newTaskId;
-    newTask.style.left = config.x ? config.x : '10px';
-    newTask.style.top = config.y ? config.y : '10px';
+    newTask.style.left = pos ? pos.x ? pos.x : '10px' : '10px';
+    newTask.style.top = pos ? pos.y ? pos.y : '10px' : '10px';
     newTask.innerText = config ? config.title ? config.title : '' : '';
     this.container.appendChild(newTask);
-    // debugger;
     // create task ports
     const newPortId = newTaskId + '-' + 'port-' + new Date().getTime();
     const portOptions = {
