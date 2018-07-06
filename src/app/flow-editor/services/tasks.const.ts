@@ -1,6 +1,7 @@
 import {DataType} from '../models/data-type.model';
+import {Task} from '../models/task.model';
 
-export const Tasks = [
+export const Tasks: Task[] = [
   {
     id: 1,
     title: 'Load CSV',
@@ -31,6 +32,6 @@ export const Tasks = [
     title: 'Log',
     inputPorts: [
       {id: 1, type: DataType.DataSet}],
-    OutputPorts: []
+    outputPorts: []
   },
 ];

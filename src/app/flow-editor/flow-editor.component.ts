@@ -3,6 +3,7 @@ import {Task} from './models/task.model';
 import {FlowEditor} from './models/flow-editor.model';
 import {Minimap} from './models/minimap.model';
 import {DataSourceService} from './services/data-source.service';
+import { Store } from './models/store.model';
 
 @Component({
   selector: 'app-flow-editor',
@@ -12,7 +13,7 @@ import {DataSourceService} from './services/data-source.service';
 export class FlowEditorComponent implements OnInit {
 
   public tasksLibrary: Task[];
-  public flowEditor: FlowEditor;
+  public store: Store = new Store();
   private minimap: Minimap;
 
   constructor(private dataSource: DataSourceService) {
@@ -23,7 +24,6 @@ export class FlowEditorComponent implements OnInit {
       this.tasksLibrary = res;
     });
 
-    this.flowEditor = new FlowEditor('flow-editor');
     this.minimap = new Minimap('minimap', {});
   }
 }

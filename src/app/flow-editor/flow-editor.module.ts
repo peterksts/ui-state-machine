@@ -5,14 +5,16 @@ import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { routes } from './flow-editor.routing';
-import { FlowEditorComponent } from './flow-editor.component';
 import { DataSourceService } from './services/data-source.service';
+import { FlowEditorComponent } from './flow-editor.component';
 import { UbixTaskDirective } from './directives/ubix-task.directive';
+import { FlowEditorDirective } from './directives/flow-editor.directive';
 
 @NgModule({
   declarations: [
     FlowEditorComponent,
     UbixTaskDirective,
+    FlowEditorDirective,
   ],
   imports: [
     CommonModule,
@@ -21,6 +23,6 @@ import { UbixTaskDirective } from './directives/ubix-task.directive';
   ],
   providers: [
     DataSourceService
-  ]
+  ],
 })
 export class FlowEditorModule { }

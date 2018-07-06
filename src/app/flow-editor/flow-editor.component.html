@@ -4,10 +4,10 @@
       <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
         <ngb-panel title="Simple">
           <ng-template ngbPanelContent>
-              <div app-ubix-task [flowEditor]="flowEditor" [ubixTaskConfig]="task"
+              <div app-ubix-task [store]="store" [config]="task"
+                   draggable="true"
                    class="badge badge-success select-task"
-                   *ngFor="let task of tasksLibrary"
-                   onselectstart="return false" onmousedown="return false">
+                   *ngFor="let task of tasksLibrary">
                 {{task.title}}
               </div>
           </ng-template>
@@ -15,7 +15,9 @@
       </ngb-accordion>
     </div>
     <div class="col-8">
-      <div id="flow-editor" class="flow-editor">
+      <div app-flow-editor-directive [store]="store"
+           id="flow-editor"
+           class="flow-editor">
         <div id="minimap" class="minimap">
           <div class="minimap-view" id="minimap-view"></div>
         </div>
