@@ -4,8 +4,8 @@
       <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
         <ngb-panel title="Simple">
           <ng-template ngbPanelContent>
-              <div app-ubix-task [store]="store" [config]="task"
-                   draggable="true"
+              <div app-ubix-task [store]="store"
+                   draggable="true" (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: task})"
                    class="badge badge-success select-task"
                    *ngFor="let task of tasksLibrary">
                 {{task.title}}
