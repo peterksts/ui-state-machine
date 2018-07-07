@@ -17,7 +17,6 @@ export class FlowEditorDirective implements OnInit {
   @Input() store: Store;
 
   private jsPlumbInstance: jsPlumbInstance;
-  private mousePosition: {x: number, y: number} = {x: 0, y: 0};
 
   constructor(private el: ElementRef
   ) { }
@@ -27,33 +26,20 @@ export class FlowEditorDirective implements OnInit {
     this.jsPlumbInstance.setContainer(this.el.nativeElement.id);
   }
 
-  private eventListenerAddNewUbixTask = (): void => {
-    const rect = this.el.nativeElement.getBoundingClientRect();
-    this.createNewTask(this.store.data, {x: this.mousePosition.x - rect.left, y: this.mousePosition.y - rect.top, type: 'mouse'});
-
-    this.store.setStore({type: '', data: null, event: null});
-  }
-
-  @HostListener('dragenter')
-  onDragEnter() {
-    if (!this.store || this.store.type !== 'new_ubix_task' || !this.store.event || !this.store.data) { return; }
-
-    this.store.event.target.addEventListener('dragend', this.eventListenerAddNewUbixTask);
-  }
-
-  @HostListener('dragleave')
-  onDragLeave() {
-    if (!this.store || this.store.type !== 'new_ubix_task' || !this.store.event || !this.store.data) { return; }
-
-    setTimeout(() => {
-      if (!this.store.event) { return; }
-      this.store.event.target.removeEventListener('dragend', this.eventListenerAddNewUbixTask);
-    }, 50);
-  }
-
   @HostListener('dragover', ['$event'])
   onDragOver(event) {
-    this.mousePosition = {x: event.pageX, y: event.pageY};
+    if (!this.store || this.store.type !== 'new_ubix_task') { return; }
+
+    event.preventDefault();
+  }
+
+  @HostListener('drop', ['$event'])
+  onDrop(event) {
+    if (!this.store || this.store.type !== 'new_ubix_task') { return; }
+
+    event.preventDefault();
+    this.createNewTask(this.store.data, {x: event.clientX, y: event.clientY, type: 'mouse'});
+    this.store.setStore({type: '', data: null, event: null});
   }
 
   // CREATE TASK
@@ -68,10 +54,11 @@ export class FlowEditorDirective implements OnInit {
     this.el.nativeElement.appendChild(newTask);
     // set position
     if (pos && pos.x && pos.y) {
-      if (pos.type && pos.type === 'mouse') {
+      if (pos.type === 'mouse') {
         const centerEl = GetCenterElement(newTask);
-        pos.x -= centerEl.x;
-        pos.y -= centerEl.y;
+        const rect = this.el.nativeElement.getBoundingClientRect();
+        pos.x = pos.x - rect.left - centerEl.x;
+        pos.y = pos.y - rect.top - centerEl.y;
       }
       newTask.style.left = pos.x + 'px';
       newTask.style.top = pos.y + 'px';
