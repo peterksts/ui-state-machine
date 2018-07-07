@@ -15,9 +15,10 @@
       </ngb-accordion>
     </div>
     <div class="col-8">
-      <div app-flow-editor-directive [store]="store"
+      <div app-flow-editor-directive [store]="store" [miniMap]="minimap"
            id="flow-editor"
            class="flow-editor">
+        <div name="flow-editor-area" style="position: absolute; width: 2000px; height: 2000px; z-index: -9999;"></div>
         <div id="minimap" class="minimap">
           <div class="minimap-view" id="minimap-view"></div>
         </div>

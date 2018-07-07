@@ -1,6 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit } from '@angular/core';
 import {Task} from './models/task.model';
-import {FlowEditor} from './models/flow-editor.model';
 import {Minimap} from './models/minimap.model';
 import {DataSourceService} from './services/data-source.service';
 import { Store } from './models/store.model';
@@ -14,7 +13,7 @@ export class FlowEditorComponent implements OnInit {
 
   public tasksLibrary: Task[];
   public store: Store = new Store();
-  private minimap: Minimap;
+  public minimap: Minimap;
 
   constructor(private dataSource: DataSourceService) {
   }
@@ -24,6 +23,6 @@ export class FlowEditorComponent implements OnInit {
       this.tasksLibrary = res;
     });
 
-    this.minimap = new Minimap('minimap', {});
+    this.minimap = new Minimap('minimap');
   }
 }

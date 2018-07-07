@@ -31,6 +31,7 @@
   position: relative;
   background: lightgray;
   height: 100%;
+  overflow: scroll;
 }
 
 .flow-editor-task {
@@ -53,6 +54,7 @@
   width: 100px;
   height: 100px;
   background: white;
+  z-index: 9999;
 }
 
 .flow-editor .minimap .minimap-view {

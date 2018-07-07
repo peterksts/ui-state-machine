@@ -1,7 +1,8 @@
 import { Directive, HostListener, Input, OnInit, ElementRef } from '@angular/core';
 import { GetCenterElement } from '../services/tools.service';
 import { Store } from '../models/store.model';
-import {EndpointOptions, jsPlumb, jsPlumbInstance} from 'jsplumb';
+import { EndpointOptions, jsPlumb, jsPlumbInstance } from 'jsplumb';
+import { Minimap } from '../models/minimap.model';
 
 enum EditorMode {
   Creating,
@@ -15,6 +16,7 @@ enum EditorMode {
 export class FlowEditorDirective implements OnInit {
 
   @Input() store: Store;
+  @Input() miniMap: Minimap;
 
   private jsPlumbInstance: jsPlumbInstance;
 
@@ -22,10 +24,12 @@ export class FlowEditorDirective implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // jsPlumb init
     this.jsPlumbInstance = jsPlumb.getInstance();
     this.jsPlumbInstance.setContainer(this.el.nativeElement.id);
   }
 
+  // DRAG AND DROP
   @HostListener('dragover', ['$event'])
   onDragOver(event) {
     if (!this.store || this.store.type !== 'new_ubix_task') { return; }
@@ -37,9 +41,26 @@ export class FlowEditorDirective implements OnInit {
   onDrop(event) {
     if (!this.store || this.store.type !== 'new_ubix_task') { return; }
 
+    const position = this.getPositionMouse(event);
+
     event.preventDefault();
-    this.createNewTask(this.store.data, {x: event.clientX, y: event.clientY, type: 'mouse'});
+    this.createNewTask(this.store.data, {x: position.x, y: position.y, type: 'mouse'});
     this.store.setStore({type: '', data: null, event: null});
+  }
+
+  // SCROLLING
+  @HostListener('scroll', ['$event'])
+  onScroll(event) {
+    this.miniMap.shift(event.target.scrollLeft, event.target.scrollTop);
+  }
+
+  // TOOLS
+  getPositionMouse(event): {x: number, y: number} {
+    const posMouseX = event.offsetX === undefined ? event.layerX : event.offsetX;
+    const posMouseY = event.offsetY === undefined ? event.layerY : event.offsetY;
+    const posScrollLeft = event.target.scrollLeft;
+    const posScrollTop = event.target.scrollTop;
+    return {x: posMouseX + posScrollLeft, y: posMouseY + posScrollTop};
   }
 
   // CREATE TASK
@@ -56,9 +77,8 @@ export class FlowEditorDirective implements OnInit {
     if (pos && pos.x && pos.y) {
       if (pos.type === 'mouse') {
         const centerEl = GetCenterElement(newTask);
-        const rect = this.el.nativeElement.getBoundingClientRect();
-        pos.x = pos.x - rect.left - centerEl.x;
-        pos.y = pos.y - rect.top - centerEl.y;
+        pos.x -= centerEl.x;
+        pos.y -= centerEl.y;
       }
       newTask.style.left = pos.x + 'px';
       newTask.style.top = pos.y + 'px';
