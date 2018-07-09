@@ -76,7 +76,7 @@ export class FlowEditorDirective implements OnInit {
     this.resizeMiniMapView();
   }
 
-  private resizeMiniMapView() {
+  private resizeMiniMapView(): void {
     const rectMap = this.el.nativeElement.getBoundingClientRect();
     this.miniMap.setSizeMiniMapView(rectMap.right - rectMap.left,
       rectMap.bottom - rectMap.top,
@@ -133,6 +133,8 @@ export class FlowEditorDirective implements OnInit {
 
     this.jsPlumbInstance.repaintEverything();
 
+    this.addMoveTask(newTask);
+
     // add task to mini-map
     this.miniMap.addTask(newTask, pos.x / (this.el.nativeElement.scrollWidth / 100),
       pos.y / (this.el.nativeElement.scrollHeight / 100),
@@ -143,8 +145,53 @@ export class FlowEditorDirective implements OnInit {
     return newTaskId;
   }
 
+  private addMoveTask(elemet: HTMLElement): void {
+    elemet.addEventListener('mousedown', (e) => {
+      let mouseStartX = e.clientX;
+      let mouseStartY = e.clientY;
+
+      const moveTask = (even): void => {
+        const startPositionX = parseInt(elemet.style.left.slice(0, elemet.style.left.length - 2), null);
+        const startPositionY = parseInt(elemet.style.top.slice(0, elemet.style.top.length - 2), null);
+        let newPositionX = startPositionX;
+        let newPositionY = startPositionY;
+        // set new X position
+        if (even.clientX > mouseStartX) {
+          newPositionX = startPositionX + (even.clientX - mouseStartX);
+        }
+        if (even.clientX < mouseStartX) {
+          newPositionX = startPositionX - (mouseStartX - even.clientX);
+        }
+        // set new Y position
+        if (even.clientY > mouseStartY) {
+          newPositionY = startPositionY + (even.clientY - mouseStartY);
+        }
+        if (even.clientY < mouseStartY) {
+          newPositionY = startPositionY - (mouseStartY - even.clientY);
+        }
+        // set position
+        mouseStartX = even.clientX;
+        mouseStartY = even.clientY;
+        elemet.style.left = newPositionX + 'px';
+        elemet.style.top = newPositionY + 'px';
+        this.jsPlumbInstance.repaintEverything();
+        // set position task mini-map
+        this.miniMap.setPositionTaskInPercent(elemet.id,
+          newPositionX / (this.el.nativeElement.scrollWidth / 100),
+          newPositionY / (this.el.nativeElement.scrollHeight / 100));
+      };
+
+      // mouse move
+      this.el.nativeElement.addEventListener('mousemove', moveTask);
+      // mouse up
+      this.el.nativeElement.addEventListener('mouseup', () => {
+        this.el.nativeElement.removeEventListener('mousemove', moveTask);
+      });
+    });
+  }
+
   // TOOLS
-  getPositionMouse(event): {x: number, y: number} {
+  private getPositionMouse(event): {x: number, y: number} {
     const posMouseX = event.offsetX === undefined ? event.layerX : event.offsetX;
     const posMouseY = event.offsetY === undefined ? event.layerY : event.offsetY;
     const posScrollLeft = event.target.scrollLeft;

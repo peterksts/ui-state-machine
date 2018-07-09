@@ -14,9 +14,9 @@ export class Minimap {
   private jsPlumbInstance: jsPlumbInstance;
   private mapPorts: {[key: string]: Endpoint} = {};
   private mapConnects: {[key: string]: Connection} = {}; // key = sourceEndpointId  + '_and_' +  targetEndpointId
-  private mapConverterIdPort: {[key: string]: string} = {}; // TODO:
   private positionMiniMap: {x: number, y: number} = {x: 20, y: 20};
   private positionMiniMapViewListener: (percentPosition: IPercentPosition) => void;
+  private suffixForIdTask = '_mini-map-task';
 
   constructor(minimapId: string, minimapViewId: string) {
     this.container = document.getElementById(minimapId);
@@ -129,6 +129,7 @@ export class Minimap {
     this.miniMapView.style.top = ((rectMiniMap.bottom - rectMiniMap.top) / 100 * positionPercentY) + 'px';
   }
 
+  // TASK
   public addTask(taskEl: HTMLElement,
                  positionPercentX: number,
                  positionPercentY: number,
@@ -139,7 +140,7 @@ export class Minimap {
     const newTaskEl = document.createElement('div');
 
     newTaskEl.setAttribute('class', taskEl.getAttribute('class'));
-    newTaskEl.id = taskEl.id + '_mini-map-task';
+    newTaskEl.id = taskEl.id + this.suffixForIdTask;
     newTaskEl.style.borderWidth = '1px';
     newTaskEl.style.width = taskEl.style.width;
     newTaskEl.style.height = taskEl.style.height;
@@ -182,6 +183,16 @@ export class Minimap {
     if (outputPorts) {
       outputPorts.forEach((port) => { this.mapPorts[port.Endpoint.id] = port.Endpoint; });
     }
+  }
+
+  // move task
+  public setPositionTaskInPercent(taskId: string, positionPercentX: number, positionPercentY: number): void {
+    const miniMapTaskId = taskId + this.suffixForIdTask;
+    const rectMiniMap = this.container.getBoundingClientRect();
+
+    document.getElementById(miniMapTaskId).style.left = ((rectMiniMap.right - rectMiniMap.left) / 100 * positionPercentX) + 'px';
+    document.getElementById(miniMapTaskId).style.top = ((rectMiniMap.bottom - rectMiniMap.top) / 100 * positionPercentY) + 'px';
+    this.jsPlumbInstance.repaintEverything();
   }
 
   // CONNECT CONTROL
