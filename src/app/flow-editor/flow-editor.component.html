@@ -4,8 +4,10 @@
       <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
         <ngb-panel title="Simple">
           <ng-template ngbPanelContent>
-              <div app-ubix-task [store]="store"
-                   draggable="true" (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: task})"
+              <div app-ubix-task
+                   draggable="true"
+                   (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: task})"
+                   (dragend)="store.setStore({type: '', event: null, data: null})"
                    class="badge badge-success select-task"
                    *ngFor="let task of tasksLibrary">
                 {{task.title}}
@@ -18,9 +20,11 @@
       <div app-flow-editor-directive [store]="store" [miniMap]="minimap"
            id="flow-editor"
            class="flow-editor">
-        <div name="flow-editor-area" style="position: absolute; width: 2000px; height: 2000px; z-index: -9999;"></div>
+        <div id="flow-editor-area" style="position: absolute; width: 1500px; height: 1500px; z-index: -9999"></div>
         <div id="minimap" class="minimap">
-          <div class="minimap-view" id="minimap-view"></div>
+          <div class="minimap-view" id="minimap-view"
+               style="top: 0px; left: 0px"
+               onselectstart="return false" onmousedown="return false"></div>
         </div>
       </div>
     </div>

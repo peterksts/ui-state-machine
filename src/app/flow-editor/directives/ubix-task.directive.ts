@@ -1,13 +1,9 @@
-import { Directive, HostListener, Input } from '@angular/core';
-import { Task } from '../models/task.model';
-import {Store} from '../models/store.model';
+import { Directive, HostListener } from '@angular/core';
 
 @Directive({
   selector: '[app-ubix-task]'
 })
 export class UbixTaskDirective {
-
-  @Input() store: Store;
 
   constructor() { }
 
@@ -19,6 +15,5 @@ export class UbixTaskDirective {
   @HostListener('dragend', ['$event'])
   onDragEnd(event) {
     event.target.style.opacity = '1';
-    this.store.setStore({type: '', data: null, event: null});
   }
 }

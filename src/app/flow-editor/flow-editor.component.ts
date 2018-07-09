@@ -23,6 +23,6 @@ export class FlowEditorComponent implements OnInit {
       this.tasksLibrary = res;
     });
 
-    this.minimap = new Minimap('minimap');
+    this.minimap = new Minimap('minimap', 'minimap-view');
   }
 }

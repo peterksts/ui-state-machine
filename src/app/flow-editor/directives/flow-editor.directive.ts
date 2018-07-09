@@ -1,8 +1,9 @@
 import { Directive, HostListener, Input, OnInit, ElementRef } from '@angular/core';
-import { GetCenterElement } from '../services/tools.service';
+import {Endpoint, jsPlumb, jsPlumbInstance} from 'jsplumb';
+
 import { Store } from '../models/store.model';
-import { EndpointOptions, jsPlumb, jsPlumbInstance } from 'jsplumb';
 import { Minimap } from '../models/minimap.model';
+import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from '../services/tools.service';
 
 enum EditorMode {
   Creating,
@@ -11,7 +12,7 @@ enum EditorMode {
 }
 
 @Directive({
-  selector: '[app-flow-editor-directive]'
+  selector: '[app-flow-editor-directive]',
 })
 export class FlowEditorDirective implements OnInit {
 
@@ -27,6 +28,19 @@ export class FlowEditorDirective implements OnInit {
     // jsPlumb init
     this.jsPlumbInstance = jsPlumb.getInstance();
     this.jsPlumbInstance.setContainer(this.el.nativeElement.id);
+    // mini-map scrolling to flow-editor-map
+    this.miniMap.setEventListenerMiniMapView((percentPosition: {percentX: number, percentY: number}) => {
+      this.setPositionScroll(percentPosition.percentX, percentPosition.percentY);
+    });
+    // set size mini-map view
+    this.resizeMiniMapView();
+    // jsPlumbInstance add bind
+    this.jsPlumbInstance.bind('connection', (info) => {
+      this.miniMap.addConnect(info.sourceEndpoint.id, info.targetEndpoint.id);
+    });
+    this.jsPlumbInstance.bind('connectionDetached', (info) => {
+      this.miniMap.deleteConnect(info.sourceEndpoint.id, info.targetEndpoint.id);
+    });
   }
 
   // DRAG AND DROP
@@ -51,16 +65,29 @@ export class FlowEditorDirective implements OnInit {
   // SCROLLING
   @HostListener('scroll', ['$event'])
   onScroll(event) {
-    this.miniMap.shift(event.target.scrollLeft, event.target.scrollTop);
+    this.miniMap.shift(event.target.scrollLeft,
+      event.target.scrollTop,
+      this.el.nativeElement.scrollWidth,
+      this.el.nativeElement.scrollHeight);
   }
 
-  // TOOLS
-  getPositionMouse(event): {x: number, y: number} {
-    const posMouseX = event.offsetX === undefined ? event.layerX : event.offsetX;
-    const posMouseY = event.offsetY === undefined ? event.layerY : event.offsetY;
-    const posScrollLeft = event.target.scrollLeft;
-    const posScrollTop = event.target.scrollTop;
-    return {x: posMouseX + posScrollLeft, y: posMouseY + posScrollTop};
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.resizeMiniMapView();
+  }
+
+  private resizeMiniMapView() {
+    const rectMap = this.el.nativeElement.getBoundingClientRect();
+    this.miniMap.setSizeMiniMapView(rectMap.right - rectMap.left,
+      rectMap.bottom - rectMap.top,
+      this.el.nativeElement.scrollWidth,
+      this.el.nativeElement.scrollHeight);
+  }
+
+  // set position scroll in percent
+  private setPositionScroll(percentX: number, percentY: number) {
+    this.el.nativeElement.scrollLeft = (this.el.nativeElement.scrollWidth / 100) * percentX;
+    this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
   // CREATE TASK
@@ -80,12 +107,12 @@ export class FlowEditorDirective implements OnInit {
         pos.x -= centerEl.x;
         pos.y -= centerEl.y;
       }
-      newTask.style.left = pos.x + 'px';
-      newTask.style.top = pos.y + 'px';
     } else {
-      newTask.style.left = '10px';
-      newTask.style.top = '10px';
+      pos.x = 10;
+      pos.y = 10;
     }
+    newTask.style.left = pos.x + 'px';
+    newTask.style.top = pos.y + 'px';
     // create task ports
     const portOptions = {
       anchor: [],
@@ -101,57 +128,27 @@ export class FlowEditorDirective implements OnInit {
     };
     const countInput = config ? config.inputPorts ? config.inputPorts.length : 0 : 0;
     const countOutput = config ? config.outputPorts ? config.outputPorts.length : 0 : 0;
-    this.addEndpointInputPorts(newTaskId, portOptions, countInput);
-    this.addEndpointOutputPorts(newTaskId, portOptions, countOutput);
+    AddEndpointInputPorts(newTaskId, portOptions, countInput, this.jsPlumbInstance, newTaskId, '');
+    AddEndpointOutputPorts(newTaskId, portOptions, countOutput, this.jsPlumbInstance, newTaskId, '');
 
     this.jsPlumbInstance.repaintEverything();
+
+    // add task to mini-map
+    this.miniMap.addTask(newTask, pos.x / (this.el.nativeElement.scrollWidth / 100),
+      pos.y / (this.el.nativeElement.scrollHeight / 100),
+      this.el.nativeElement.scrollWidth,
+      this.el.nativeElement.scrollHeight,
+      config);
 
     return newTaskId;
   }
 
-  private addEndpointInputPorts(taskId: string, portOptions: EndpointOptions, count: number): void {
-    if (count === 0) { return; }
-
-    let anchors = [[0.5, 0]];
-    if (count > 1) {
-      anchors = [];
-      count += 1;
-      let coordination = 1 / count;
-      const coordinationIterator = coordination;
-
-      for (let i = 2; i <= count; i++) {
-        anchors.push([coordination, 0]);
-        coordination += coordinationIterator;
-      }
-    }
-
-    anchors.forEach((anchor, index) => {
-      portOptions.anchor = anchor;
-      portOptions.id = taskId + '-' + 'port-' + index + '_in_' + new Date().getTime();
-      this.jsPlumbInstance.addEndpoint(taskId, portOptions);
-    });
-  }
-
-  private addEndpointOutputPorts(taskId: string, portOptions: EndpointOptions, count: number): void {
-    if (count === 0) { return; }
-
-    let anchors = [[0.5, 1]];
-    if (count > 1) {
-      anchors = [];
-      count += 1;
-      let coordination = 1 / count;
-      const coordinationIterator = coordination;
-
-      for (let i = 2; i <= count; i++) {
-        anchors.push([coordination, 1]);
-        coordination += coordinationIterator;
-      }
-    }
-
-    anchors.forEach((anchor, index) => {
-      portOptions.anchor = anchor;
-      portOptions.id = taskId + '-' + 'port-' + index + '_out_' + new Date().getTime();
-      this.jsPlumbInstance.addEndpoint(taskId, portOptions);
-    });
+  // TOOLS
+  getPositionMouse(event): {x: number, y: number} {
+    const posMouseX = event.offsetX === undefined ? event.layerX : event.offsetX;
+    const posMouseY = event.offsetY === undefined ? event.layerY : event.offsetY;
+    const posScrollLeft = event.target.scrollLeft;
+    const posScrollTop = event.target.scrollTop;
+    return {x: posMouseX + posScrollLeft, y: posMouseY + posScrollTop};
   }
 }
