@@ -74,45 +74,46 @@ export class FlowEditorDirective implements OnInit {
       this.el.nativeElement.scrollHeight);
   }
 
-  private startPositionMouse: {x: number, y: number} = {x: 0, y: 0};
   @HostListener('mousedown', ['$event'])
-  onMouseDown(event) {
+  onMouseDownMoveScroll(event) {
     if (event.target.id !== this.el.nativeElement.id) { return; }
-    document.body.style.cursor = 'move';
-    this.startPositionMouse = {x: event.clientX, y: event.clientY};
 
-    window.addEventListener('mousemove', this.moveMouseScroll);
-    // up
+    document.body.style.cursor = 'move';
+    let startPositionMouse = {x: event.clientX, y: event.clientY};
+
+    const moveMouseScroll = (e): void => {
+      const startPositionX = this.el.nativeElement.scrollLeft;
+      const startPositionY = this.el.nativeElement.scrollTop;
+      const newPositionMouse = {x: e.clientX, y: e.clientY};
+      let newPositionX = startPositionX;
+      let newPositionY = startPositionY;
+      // set new X position
+      if (newPositionMouse.x > startPositionMouse.x) {
+        newPositionX = startPositionX - (newPositionMouse.x - startPositionMouse.x);
+      }
+      if (newPositionMouse.x < startPositionMouse.x) {
+        newPositionX = startPositionX + (startPositionMouse.x - newPositionMouse.x);
+      }
+      // set new Y position
+      if (newPositionMouse.y > startPositionMouse.y) {
+        newPositionY = startPositionY - (newPositionMouse.y - startPositionMouse.y);
+      }
+      if (newPositionMouse.y < startPositionMouse.y) {
+        newPositionY = startPositionY + (startPositionMouse.y - newPositionMouse.y);
+      }
+      // set position scroll
+      startPositionMouse = newPositionMouse;
+      this.el.nativeElement.scrollLeft = newPositionX;
+      this.el.nativeElement.scrollTop = newPositionY;
+    };
+
+    // add
+    window.addEventListener('mousemove', moveMouseScroll);
+    // mouse up
     window.addEventListener('mouseup', () => {
       document.body.style.cursor = 'default';
-      window.removeEventListener('mousemove', this.moveMouseScroll);
+      window.removeEventListener('mousemove', moveMouseScroll);
     });
-  }
-
-  private moveMouseScroll = (e): void => {
-    const startPositionX = this.el.nativeElement.scrollLeft;
-    const startPositionY = this.el.nativeElement.scrollTop;
-    const newPositionMouse = {x: e.clientX, y: e.clientY};
-    let newPositionX = startPositionX;
-    let newPositionY = startPositionY;
-    // set new X position
-    if (newPositionMouse.x > this.startPositionMouse.x) {
-      newPositionX = startPositionX - (newPositionMouse.x - this.startPositionMouse.x);
-    }
-    if (newPositionMouse.x < this.startPositionMouse.x) {
-      newPositionX = startPositionX + (this.startPositionMouse.x - newPositionMouse.x);
-    }
-    // set new Y position
-    if (newPositionMouse.y > this.startPositionMouse.y) {
-      newPositionY = startPositionY - (newPositionMouse.y - this.startPositionMouse.y);
-    }
-    if (newPositionMouse.y < this.startPositionMouse.y) {
-      newPositionY = startPositionY + (this.startPositionMouse.y - newPositionMouse.y);
-    }
-    // set position scroll
-    this.startPositionMouse = newPositionMouse;
-    this.el.nativeElement.scrollLeft = newPositionX;
-    this.el.nativeElement.scrollTop = newPositionY;
   }
 
   @HostListener('window:resize')
