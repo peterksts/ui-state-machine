@@ -44,6 +44,7 @@ export class Minimap {
 
   private miniMapViewControl(miniMapView: HTMLElement): void {
     miniMapView.addEventListener('mousedown', (e) => {
+      document.body.style.cursor = 'move';
       let mouseStartX = e.clientX;
       let mouseStartY = e.clientY;
 
@@ -95,6 +96,7 @@ export class Minimap {
       window.addEventListener('mousemove', moveMiniMapView);
       // mouse up
       window.addEventListener('mouseup', () => {
+        document.body.style.cursor = 'default';
         window.removeEventListener('mousemove', moveMiniMapView);
       });
     });
@@ -206,6 +208,8 @@ export class Minimap {
 
   public deleteConnect(sourceEndpointId: string, targetEndpointId: string): void {
     const connectId = sourceEndpointId + '_and_' + targetEndpointId;
+    if (!connectId) { return; }
+
     this.jsPlumbInstance.deleteConnection(this.mapConnects[connectId]);
     this.mapConnects[connectId] = null;
   }
