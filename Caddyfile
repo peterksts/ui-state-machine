@@ -1,0 +1,24 @@
+http://local.ubix.io {
+    proxy /apps/sttest :4200 {
+        without /apps/sttest
+        websocket
+    }
+    proxy /sockjs-node/ :4200 {
+        websocket
+    }
+    proxy / 192.168.111.141:80 {
+        transparent
+        websocket
+    }
+    root src/assets
+    log local.ubix.io.log
+}
+
+http://local.ubix.io:8080 {
+    proxy / 192.168.111.141:8080 {
+        transparent
+        websocket
+    }
+    root src/assets
+    log local.ubix.io.log
+}
