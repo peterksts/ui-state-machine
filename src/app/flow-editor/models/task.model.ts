@@ -1,11 +1,15 @@
 import {DataType} from './data-type.model';
 
 export class Task {
-  public swimlane: string;
+  public category: string;
   public id: number;
-  public title: string;
-  public inputPorts: any[];
-  public outputPorts: any[];
+  public name: string;
+  public consumes: any[];
+  public produces: any[];
+  public parameters: any[];
+  public completion: any;
+  public execution: any;
+  public review: any;
 
   constructor() {
   }

@@ -41,7 +41,6 @@
   border-radius: 10px;
   background: white;
   border: 2px solid cadetblue;
-  height: 50px;
   cursor: pointer;
   /* TODO: test parameters */
   line-height: 50px;
@@ -70,6 +69,11 @@
   height: 40px;
   z-index: 9991;
   cursor: move;
+}
+
+.select-task {
+  white-space: pre-line !important;
+  text-align: left!important;
 }
 
 .select-task:hover {

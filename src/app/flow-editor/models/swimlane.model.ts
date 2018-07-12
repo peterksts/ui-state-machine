@@ -83,20 +83,20 @@ export class Swimlane {
 
   // DRAG AND DROP
   private onDragOver = (event): void => {
-    if (!this.store || this.store.type !== 'new_ubix_task' || this.store.data.swimlane !== this.nameSwimlane) { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task' || this.store.data.category !== this.nameSwimlane) { return; }
 
     event.preventDefault();
     this.container.style.borderColor = 'rgba(255, 0, 0, 0.4)';
   }
 
   private onDragLeave = (event): void => {
-    if (!this.store || this.store.type !== 'new_ubix_task' || this.store.data.swimlane !== this.nameSwimlane) { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task' || this.store.data.category !== this.nameSwimlane) { return; }
 
     this.container.style.borderColor = this.borderColor;
   }
 
   private onDrop = (event): void => {
-    if (!this.store || this.store.type !== 'new_ubix_task' || this.store.data.swimlane !== this.nameSwimlane) { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task' || this.store.data.category !== this.nameSwimlane) { return; }
 
     const position = this.getPositionMouse(event);
 
@@ -108,17 +108,17 @@ export class Swimlane {
 
   // CREATE TASK
   // createNewTask and return id element new task
-  private createNewTask(config: any, pos?: any): string {
+  private createNewTask(config: any = {}, pos?: any): string {
     // create task body
     const newTaskId = 'task-' + new Date().getTime();
     const newTask = document.createElement('div');
     newTask.classList.add('flow-editor-task');
     newTask.id = newTaskId;
-    newTask.innerText = config ? config.title ? config.title : '' : '';
+    newTask.innerText = config.name || 'task';
     newTask.setAttribute('onselectstart', 'return false');
     newTask.setAttribute('onmousedown', 'return false');
     newTask.setAttribute('name', this.nameTask);
-    newTask.setAttribute('config', JSON.stringify(config));
+    // newTask.setAttribute('config', JSON.stringify(config));
     this.container.appendChild(newTask);
     // set position
     if (pos && pos.x && pos.y) {
@@ -147,14 +147,15 @@ export class Swimlane {
       isTarget: true,
       connector: 'Bezier',
     };
-    const countInput = config ? config.inputPorts ? config.inputPorts.length : 0 : 0;
-    const countOutput = config ? config.outputPorts ? config.outputPorts.length : 0 : 0;
+    const countInput = config.consumes.length || 0;
+    const countOutput = config.produces.length || 0;
     AddEndpointInputPorts(newTaskId, portOptions, countInput, this.jsPlumbInstance, newTaskId, '');
     AddEndpointOutputPorts(newTaskId, portOptions, countOutput, this.jsPlumbInstance, newTaskId, '');
 
     this.jsPlumbInstance.repaintEverything();
 
     if (this.createTaskListener) {
+      const rect = newTask.getBoundingClientRect();
       this.createTaskListener(newTask, pos.x, pos.y, config, this.nameSwimlane);
     }
 

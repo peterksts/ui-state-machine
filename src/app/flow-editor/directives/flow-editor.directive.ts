@@ -1,10 +1,11 @@
 import { Directive, HostListener, Input, OnInit, ElementRef } from '@angular/core';
-import {Endpoint, jsPlumb, jsPlumbInstance} from 'jsplumb';
+import { Endpoint, jsPlumb, jsPlumbInstance } from 'jsplumb';
 
 import { Store } from '../models/store.model';
 import { Minimap } from '../models/minimap.model';
 import {AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement, ParseStylePxToNumber} from '../services/tools.service';
 import { Swimlane } from '../models/swimlane.model';
+import {DataSourceService} from '../services/data-source.service';
 
 enum EditorMode {
   Creating,
@@ -27,7 +28,8 @@ export class FlowEditorDirective implements OnInit {
   private listSwimLaneName: string[] = [];
   private useSwimLane = true;
 
-  constructor(private el: ElementRef
+  constructor(private el: ElementRef,
+              private dataSource: DataSourceService
   ) { }
 
   ngOnInit(): void {
@@ -43,9 +45,18 @@ export class FlowEditorDirective implements OnInit {
     // jsPlumbInstance add bind
     this.addBindJsPlumb();
     // swimlane
-    this.createSwimLanes( {name: 'collection', color: 'rgba(255, 77, 74, 0.05)', borderColor: 'rgba(255, 77, 74, 0.2)', height: 200},
-      {name: 'transform', color: 'rgba(87, 255, 84, 0.05)', borderColor: 'rgba(87, 255, 84, 0.2)', height: 200},
-      {name: 'driver clustering', color: 'rgba(102, 96, 255, 0.05)', borderColor: 'rgba(102, 96, 255, 0.2)', height: 200});
+    this.dataSource.categories.forEach((categorie) => {
+      const red = Math.random() * 255;
+      const green = Math.random() * 255;
+      const blue = Math.random() * 255;
+      this.createSwimLanes({name: categorie,
+        color: 'rgba(' + red + ', ' + green + ', ' + blue + ', 0.05',
+        borderColor: 'rgba(' + red + ', ' + green + ', ' + blue + ', 0.2',
+        height: 200});
+    });
+    // this.createSwimLanes( {name: 'collection', color: 'rgba(255, 77, 74, 0.05)', borderColor: 'rgba(255, 77, 74, 0.2)', height: 200},
+    //   {name: 'transform', color: 'rgba(87, 255, 84, 0.05)', borderColor: 'rgba(87, 255, 84, 0.2)', height: 200},
+    //   {name: 'driver clustering', color: 'rgba(102, 96, 255, 0.05)', borderColor: 'rgba(102, 96, 255, 0.2)', height: 200});
     // TODO: test
     // this.swimLanesOff();
     // setTimeout(() => {

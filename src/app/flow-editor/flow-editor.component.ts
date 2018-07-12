@@ -11,7 +11,7 @@ import { Store } from './models/store.model';
 })
 export class FlowEditorComponent implements OnInit {
 
-  public tasksLibrary: Task[];
+  public tasksLibrary: any;
   public store: Store = new Store();
   public minimap: Minimap;
 
@@ -19,10 +19,14 @@ export class FlowEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dataSource.getTasksLibrary().then((res: Task[]) => {
+    this.dataSource.getTasks().then((res: Task[]) => {
       this.tasksLibrary = res;
     });
 
     this.minimap = new Minimap('minimap', 'minimap-view');
+  }
+
+  public getCategoryName(category: string): string {
+    return category + ' Tasks';
   }
 }

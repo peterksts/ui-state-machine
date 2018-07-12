@@ -153,7 +153,7 @@ export class Minimap {
     // append
     this.container.appendChild(newTaskEl);
     // get size
-    const rectnewTaskEl = newTaskEl.getBoundingClientRect();
+    const rectnewTaskEl = taskEl.getBoundingClientRect();
     const sizeWidth = rectnewTaskEl.right - rectnewTaskEl.left;
     const sizeHeight = rectnewTaskEl.bottom - rectnewTaskEl.top;
     const sizePercentWidth = sizeWidth / (sizeFlowEditorScrollWidth / 100);
@@ -161,6 +161,7 @@ export class Minimap {
     // set size
     newTaskEl.style.width = ((rectMiniMap.right - rectMiniMap.left) / 100 * sizePercentWidth) + 'px';
     newTaskEl.style.height = ((rectMiniMap.bottom - rectMiniMap.top) / 100 * sizePercentHeight) + 'px';
+    console.log(sizePercentWidth, sizePercentHeight);
     // set position
     newTaskEl.style.left = ((rectMiniMap.right - rectMiniMap.left) / 100 * positionPercentX) + 'px';
     newTaskEl.style.top = ((rectMiniMap.bottom - rectMiniMap.top) / 100 * positionPercentY) + 'px';
@@ -178,8 +179,8 @@ export class Minimap {
       isTarget: false,
       connector: 'Straight',
     };
-    const countInput = config ? config.inputPorts ? config.inputPorts.length : 0 : 0;
-    const countOutput = config ? config.outputPorts ? config.outputPorts.length : 0 : 0;
+    const countInput = config.consumes.length || 0;
+    const countOutput = config.produces.length || 0;
     const inputPorts = AddEndpointInputPorts(newTaskEl.id, portOptions, countInput, this.jsPlumbInstance, taskEl.id, '');
     const outputPorts = AddEndpointOutputPorts(newTaskEl.id, portOptions, countOutput, this.jsPlumbInstance, taskEl.id, '');
     // set map ports
