@@ -3,7 +3,8 @@ import {Endpoint, jsPlumb, jsPlumbInstance} from 'jsplumb';
 
 import { Store } from '../models/store.model';
 import { Minimap } from '../models/minimap.model';
-import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from '../services/tools.service';
+import {AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement, ParseStylePxToNumber} from '../services/tools.service';
+import { Swimlane } from '../models/swimlane.model';
 
 enum EditorMode {
   Creating,
@@ -20,6 +21,11 @@ export class FlowEditorDirective implements OnInit {
   @Input() miniMap: Minimap;
 
   private jsPlumbInstance: jsPlumbInstance;
+  private nameTask = 'ubix-task';
+  private nameSwimlane = 'swimlane';
+  private mapSwimLane: {[key: string]: Swimlane} = {};
+  private listSwimLaneName: string[] = [];
+  private useSwimLane = true;
 
   constructor(private el: ElementRef
   ) { }
@@ -35,6 +41,20 @@ export class FlowEditorDirective implements OnInit {
     // set size mini-map view
     this.resizeMiniMapView();
     // jsPlumbInstance add bind
+    this.addBindJsPlumb();
+    // swimlane
+    this.createSwimLanes( {name: 'collection', color: 'rgba(255, 77, 74, 0.05)', borderColor: 'rgba(255, 77, 74, 0.2)', height: 200},
+      {name: 'transform', color: 'rgba(87, 255, 84, 0.05)', borderColor: 'rgba(87, 255, 84, 0.2)', height: 200},
+      {name: 'driver clustering', color: 'rgba(102, 96, 255, 0.05)', borderColor: 'rgba(102, 96, 255, 0.2)', height: 200});
+    // TODO: test
+    // this.swimLanesOff();
+    // setTimeout(() => {
+    //   this.swimLanesOff();
+    // }, 5000);
+  }
+
+  // JS PLUMB
+  private addBindJsPlumb(): void {
     this.jsPlumbInstance.bind('connection', (info) => {
       this.miniMap.addConnect(info.sourceEndpoint.id, info.targetEndpoint.id);
     });
@@ -46,17 +66,66 @@ export class FlowEditorDirective implements OnInit {
     });
   }
 
+  // SWIMLANE
+  private createSwimLanes(...params: {name: string, color: string, borderColor: string, height: number}[]) {
+    params.forEach((param) => {
+      const newSwimLane = document.createElement('div');
+      newSwimLane.id = this.nameSwimlane + '-' + param.name;
+      newSwimLane.classList.add('swimlane');
+      newSwimLane.setAttribute('name', this.nameSwimlane);
+      newSwimLane.style.width = this.el.nativeElement.scrollWidth + 'px';
+      newSwimLane.style.backgroundColor = param.color;
+      newSwimLane.style.borderColor = param.borderColor;
+      newSwimLane.style.height = param.height + 'px';
+      this.el.nativeElement.appendChild(newSwimLane);
+      this.mapSwimLane[param.name] = new Swimlane(newSwimLane.id,
+        param.name,
+        this.onMoveTask,
+        this.onCreateTask,
+        this.jsPlumbInstance,
+        this.store,
+        this.nameTask,
+        this.el.nativeElement.id);
+      this.listSwimLaneName.push(param.name);
+    });
+  }
+
+  public swimLanesOff() {
+    this.useSwimLane = false;
+    this.listSwimLaneName.forEach((nameSwimlane) => {
+      this.mapSwimLane[nameSwimlane].visibleOff();
+      const divAll = this.el.nativeElement.getElementsByTagName('div');
+      for (let i = 0; i < divAll.length; i++) {
+        const div = divAll.item(i);
+        if (div.getAttribute('name') !== this.nameTask) { continue; }
+
+        const config = JSON.parse(div.getAttribute('config'));
+        const position = {x: ParseStylePxToNumber(div.style.left),
+          y: ParseStylePxToNumber(div.style.top) + this.mapSwimLane[nameSwimlane].getTopPosition()};
+        this.mapSwimLane[nameSwimlane].deleteChild(div);
+        this.createNewTask(config, position, div.id);
+      }
+    });
+  }
+
+  public swimLanesOn() {
+    this.useSwimLane = true;
+    this.listSwimLaneName.forEach((nameSwimlane) => {
+      this.mapSwimLane[nameSwimlane].visibleOn();
+    });
+  }
+
   // DRAG AND DROP
   @HostListener('dragover', ['$event'])
   onDragOver(event) {
-    if (!this.store || this.store.type !== 'new_ubix_task') { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task' || this.useSwimLane) { return; }
 
     event.preventDefault();
   }
 
   @HostListener('drop', ['$event'])
   onDrop(event) {
-    if (!this.store || this.store.type !== 'new_ubix_task') { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task' || this.useSwimLane) { return; }
 
     const position = this.getPositionMouse(event);
 
@@ -76,7 +145,7 @@ export class FlowEditorDirective implements OnInit {
 
   @HostListener('mousedown', ['$event'])
   onMouseDownMoveScroll(event) {
-    if (event.target.id !== this.el.nativeElement.id) { return; }
+    if (event.target.getAttribute('name') === this.nameTask || event.target.id === this.miniMap.getMiniMapViewName()) { return; }
 
     document.body.style.cursor = 'move';
     let startPositionMouse = {x: event.clientX, y: event.clientY};
@@ -116,6 +185,7 @@ export class FlowEditorDirective implements OnInit {
     });
   }
 
+  // SIZE
   @HostListener('window:resize')
   onWindowResize() {
     this.resizeMiniMapView();
@@ -135,17 +205,33 @@ export class FlowEditorDirective implements OnInit {
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
+  // TASK CONTROL
+  private onMoveTask = (positionX: number, positionY: number, taskId: string, swimlaneName: string): void => {
+    this.miniMap.setPositionTaskInPercent(taskId,
+      positionX / (this.el.nativeElement.scrollWidth / 100),
+      (positionY + this.mapSwimLane[swimlaneName].getTopPosition()) / (this.el.nativeElement.scrollHeight / 100));
+  }
+
+  private onCreateTask = (newTask: HTMLElement, positionX: number, positionY: number, config: any, swimlaneName: string): void => {
+    this.miniMap.addTask(newTask, positionX / (this.el.nativeElement.scrollWidth / 100),
+      (positionY + this.mapSwimLane[swimlaneName].getTopPosition()) / (this.el.nativeElement.scrollHeight / 100),
+      this.el.nativeElement.scrollWidth,
+      this.el.nativeElement.scrollHeight,
+      config);
+  }
+
   // CREATE TASK
   // createNewTask and return id element new task
-  private createNewTask(config: any, pos?: any): string {
+  private createNewTask(config: any, pos?: any, id?: string): string {
     // create task body
     const newTaskId = 'task-' + new Date().getTime();
     const newTask = document.createElement('div');
     newTask.classList.add('flow-editor-task');
-    newTask.id = newTaskId;
+    newTask.id = id ? id : newTaskId;
     newTask.innerText = config ? config.title ? config.title : '' : '';
     newTask.setAttribute('onselectstart', 'return false');
     newTask.setAttribute('onmousedown', 'return false');
+    newTask.setAttribute('name', this.nameTask);
     this.el.nativeElement.appendChild(newTask);
     // set position
     if (pos && pos.x && pos.y) {
@@ -169,6 +255,7 @@ export class FlowEditorDirective implements OnInit {
       scope: '1.0',
       reattachConnections: true,
       type: 'Dot',
+      cssClass: 'endpoint',
       isSource: true,
       isTarget: true,
       connector: 'Bezier',

@@ -50,7 +50,7 @@ export const AddEndpointOutputPorts = (taskId: string,
                                        count: number,
                                        jsPlumbInst: jsPlumbInstance,
                                        prefixId: string,
-                                       suffixId: string,): IPort[] => {
+                                       suffixId: string): IPort[] => {
   if (count === 0) { return; }
 
   let anchors = [[0.5, 1]];
@@ -75,4 +75,9 @@ export const AddEndpointOutputPorts = (taskId: string,
     listPort.push({id: portOptions.id, Endpoint: <Endpoint>endpoint});
   });
   return listPort;
+};
+
+export const ParseStylePxToNumber = (style: string): number => {
+  const styleNum = parseInt(style.slice(0, style.length - 2), null);
+  return styleNum;
 };

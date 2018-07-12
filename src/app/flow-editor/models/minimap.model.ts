@@ -15,7 +15,7 @@ export class Minimap {
   private mapPorts: {[key: string]: Endpoint} = {};
   private mapConnects: {[key: string]: Connection} = {}; // key = sourceEndpointId  + '_and_' +  targetEndpointId
   private positionMiniMap: {x: number, y: number} = {x: 20, y: 20};
-  private positionMiniMapViewListener: (percentPosition: IPercentPosition) => void;
+  private moveMiniMapViewListener: (percentPosition: IPercentPosition) => void;
   private suffixForIdTask = '_mini-map-task';
 
   constructor(minimapId: string, minimapViewId: string) {
@@ -39,7 +39,7 @@ export class Minimap {
 
   // MINI-MAP VIEW
   public setEventListenerMiniMapView(listener: (percentPosition: IPercentPosition) => void): void {
-    this.positionMiniMapViewListener = listener;
+    this.moveMiniMapViewListener = listener;
   }
 
   private miniMapViewControl(miniMapView: HTMLElement): void {
@@ -86,8 +86,8 @@ export class Minimap {
           newPositionY = startPositionY;
         }
         // set position scroll flow-editor-map
-        if (this.positionMiniMapViewListener) {
-          this.positionMiniMapViewListener({percentX: newPositionX / ((rectMiniMap.right - rectMiniMap.left) / 100),
+        if (this.moveMiniMapViewListener) {
+          this.moveMiniMapViewListener({percentX: newPositionX / ((rectMiniMap.right - rectMiniMap.left) / 100),
             percentY: newPositionY / ((rectMiniMap.bottom - rectMiniMap.top) / 100)});
         }
       };
@@ -129,6 +129,10 @@ export class Minimap {
     const rectMiniMap = this.container.getBoundingClientRect();
     this.miniMapView.style.left = ((rectMiniMap.right - rectMiniMap.left) / 100 * positionPercentX) + 'px';
     this.miniMapView.style.top = ((rectMiniMap.bottom - rectMiniMap.top) / 100 * positionPercentY) + 'px';
+  }
+
+  public getMiniMapViewName(): string {
+    return this.miniMapView.getAttribute('name');
   }
 
   // TASK

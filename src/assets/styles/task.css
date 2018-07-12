@@ -56,6 +56,7 @@
   height: 100px;
   background: white;
   z-index: 9990;
+  overflow: hidden;
 }
 
 .flow-editor .minimap .minimap-view {
@@ -77,4 +78,41 @@
 
 .minimap-endpoint {
   transform: scale(0.1, 0.1);
+}
+
+.endpoint {
+}
+
+.swimlane {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 150px;
+  background-color: rgba(95, 158, 160, 0.2);
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-color: cadetblue;
+}
+
+.swimlane .name-swimlane {
+  width: 75px;
+  height: 100%;
+  border-right: 2px solid;
+  border-color: inherit;
+
+  display: -webkit-flex;
+  display: -ms-flex;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.swimlane .name-swimlane p {
+  text-align:  center;
+  -webkit-transform: rotate(270deg);
+  transform: rotate(270deg);
+  color: rgba(0, 0, 0, 0.8);
+  cursor: default;
 }
