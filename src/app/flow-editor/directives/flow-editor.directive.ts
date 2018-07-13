@@ -214,13 +214,13 @@ export class FlowEditorDirective implements OnInit {
 
   // CREATE TASK
   // createNewTask and return id element new task
-  private createNewTask(config: any, pos?: any, id?: string): string {
+  private createNewTask(config: any, pos?: any): string {
     // create task body
     const newTaskId = 'task-' + new Date().getTime();
     const newTask = document.createElement('div');
     newTask.classList.add('flow-editor-task');
-    newTask.id = id ? id : newTaskId;
-    newTask.innerText = config ? config.title ? config.title : '' : '';
+    newTask.id = newTaskId;
+    newTask.innerText = config.name || 'task';
     newTask.setAttribute('onselectstart', 'return false');
     newTask.setAttribute('onmousedown', 'return false');
     newTask.setAttribute('name', this.nameTask);
@@ -248,13 +248,16 @@ export class FlowEditorDirective implements OnInit {
       scope: '1.0',
       reattachConnections: true,
       type: 'Dot',
-      cssClass: 'endpoint',
       isSource: true,
       isTarget: true,
       connector: 'Bezier',
+      paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
+      hoverPaintStyle: {stroke: 'lightblue'},
+      connectorStyle: {stroke: 'green', strokeWidth: 1},
+      connectorHoverStyle: {strokeWidth: 2}
     };
-    const countInput = config ? config.inputPorts ? config.inputPorts.length : 0 : 0;
-    const countOutput = config ? config.outputPorts ? config.outputPorts.length : 0 : 0;
+    const countInput = config.consumes.length || 0;
+    const countOutput = config.produces.length || 0;
     AddEndpointInputPorts(newTaskId, portOptions, countInput, this.jsPlumbInstance, newTaskId, '');
     AddEndpointOutputPorts(newTaskId, portOptions, countOutput, this.jsPlumbInstance, newTaskId, '');
 
