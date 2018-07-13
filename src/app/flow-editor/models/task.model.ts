@@ -6,6 +6,7 @@ export class Task {
   public name: string;
   public consumes: any[];
   public produces: any[];
+  public properties: any[];
   public parameters: any[];
   public completion: any;
   public execution: any;

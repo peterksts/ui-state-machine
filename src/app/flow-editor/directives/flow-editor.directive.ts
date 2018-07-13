@@ -263,6 +263,7 @@ export class FlowEditorDirective implements OnInit {
       maxConnections: 1,
       parameters: {},
       id: '',
+      cssClass: 'endpoint',
       scope: '1.0',
       reattachConnections: true,
       type: 'Dot',

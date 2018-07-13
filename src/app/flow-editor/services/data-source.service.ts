@@ -13,7 +13,7 @@ export class DataSourceService {
   }
 
   public getTasksLibrary(): Promise<Task[]> {
-    return Promise.resolve(Tasks);
+    return Promise.resolve(this.handleTasks(Tasks));
   }
 
   private handleTasks(tasks) {

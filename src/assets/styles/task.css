@@ -42,9 +42,8 @@
   background: white;
   border: 2px solid cadetblue;
   cursor: pointer;
-  /* TODO: test parameters */
-  line-height: 50px;
   text-align: center;
+  min-height: 40px;
 }
 
 .flow-editor .minimap {
@@ -85,6 +84,7 @@
 }
 
 .endpoint {
+  transform: scale(0.5, 0.5);
 }
 
 .swimlane {

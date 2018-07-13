@@ -19,7 +19,8 @@ export class FlowEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dataSource.getTasks().then((res: Task[]) => {
+    this.dataSource.getTasksLibrary().then((res: Task[]) => {
+    // this.dataSource.getTasks().then((res: Task[]) => {
       this.tasksLibrary = res;
     });
 
