@@ -197,7 +197,7 @@ export class FlowEditorDirective implements OnInit {
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
-  // TASK CONTROL
+  // // TASK CONTROL
   // private onMoveTask = (positionX: number, positionY: number, taskId: string, swimlaneName: string): void => {
   //   this.miniMap.setPositionTaskInPercent(taskId,
   //     positionX / (this.el.nativeElement.scrollWidth / 100),
