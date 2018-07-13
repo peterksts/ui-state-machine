@@ -1,5 +1,5 @@
-import { DataType } from '../models/data-type.model';
-import { Task } from '../models/task.model';
+import {DataType} from '../models/data-type.model';
+import {Task} from '../models/task.model';
 
 export const Tasks: Task[] = [
   {

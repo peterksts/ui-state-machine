@@ -1,8 +1,6 @@
 <div class="fluid-container flow-editor-root">
   <div class="row">
     <div class="col-2" style="overflow: auto">
-
-      <div>
       <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
         <ngb-panel title="{{getCategoryName(cat.name)}}"
                    *ngFor="let cat of tasksLibrary">
@@ -10,7 +8,7 @@
               <div app-ubix-task
                    draggable="true"
                    (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: task})"
-                   (dragend)="store.setStore({type: '', event: null, data: null})"
+                   (dragend)="store.setStore({type: null, event: null, data: null})"
                    class="btn btn-outline-warning select-task"
                    *ngFor="let task of cat.tasks">
                 {{task.name}}
@@ -18,13 +16,11 @@
           </ng-template>
         </ngb-panel>
       </ngb-accordion>
-      </div>
-
-
-
     </div>
     <div class="col-8">
-      <div app-flow-editor-directive [store]="store" [miniMap]="minimap"
+      <div app-flow-editor-directive
+           ubix-movable-view
+           [store]="store" [miniMap]="minimap"
            id="flow-editor"
            class="flow-editor">
         <div id="flow-editor-area" style="position: absolute; width: 2000px; height: 2000px; z-index: -9999"></div>

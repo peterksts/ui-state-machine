@@ -32,12 +32,8 @@ export class FlowEditorDirective implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // jsPlumb init
     this.jsPlumbInstance = jsPlumb.getInstance({
-      // default drag options
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
-      // the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
-      // case it returns the 'labelText' member that we set on each connection in the 'init' method below.
       ConnectionOverlays: [
         ['Arrow', {
           location: 1,
@@ -88,55 +84,6 @@ export class FlowEditorDirective implements OnInit {
     });
   }
 
-  // // SWIMLANE
-  // private createSwimLanes(...params: {name: string, color: string, borderColor: string, height: number}[]) {
-  //   params.forEach((param) => {
-  //     const newSwimLane = document.createElement('div');
-  //     newSwimLane.id = this.nameSwimlane + '-' + param.name;
-  //     newSwimLane.classList.add('swimlane');
-  //     newSwimLane.setAttribute('name', this.nameSwimlane);
-  //     newSwimLane.style.width = this.el.nativeElement.scrollWidth + 'px';
-  //     newSwimLane.style.backgroundColor = param.color;
-  //     newSwimLane.style.borderColor = param.borderColor;
-  //     newSwimLane.style.height = param.height + 'px';
-  //     this.el.nativeElement.appendChild(newSwimLane);
-  //     this.mapSwimLane[param.name] = new Swimlane(newSwimLane.id,
-  //       param.name,
-  //       this.onMoveTask,
-  //       this.onCreateTask,
-  //       this.jsPlumbInstance,
-  //       this.store,
-  //       this.nameTask,
-  //       this.el.nativeElement.id);
-  //     this.listSwimLaneName.push(param.name);
-  //   });
-  // }
-  //
-  // public swimLanesOff() {
-  //   this.useSwimLane = false;
-  //   this.listSwimLaneName.forEach((nameSwimlane) => {
-  //     this.mapSwimLane[nameSwimlane].visibleOff();
-  //     const divAll = this.el.nativeElement.getElementsByTagName('div');
-  //     for (let i = 0; i < divAll.length; i++) {
-  //       const div = divAll.item(i);
-  //       if (div.getAttribute('name') !== this.nameTask) { continue; }
-  //
-  //       const config = JSON.parse(div.getAttribute('config'));
-  //       const position = {x: ParseStylePxToNumber(div.style.left),
-  //         y: ParseStylePxToNumber(div.style.top) + this.mapSwimLane[nameSwimlane].getTopPosition()};
-  //       this.mapSwimLane[nameSwimlane].deleteChild(div);
-  //       this.createNewTask(config, position, div.id);
-  //     }
-  //   });
-  // }
-  //
-  // public swimLanesOn() {
-  //   this.useSwimLane = true;
-  //   this.listSwimLaneName.forEach((nameSwimlane) => {
-  //     this.mapSwimLane[nameSwimlane].visibleOn();
-  //   });
-  // }
-
   // DRAG AND DROP
   @HostListener('dragover', ['$event'])
   onDragOver(event) {
@@ -148,12 +95,9 @@ export class FlowEditorDirective implements OnInit {
   @HostListener('drop', ['$event'])
   onDrop(event) {
     if (!this.store || this.store.type !== 'new_ubix_task') { return; }
-
     const position = this.getPositionMouse(event);
-
     event.preventDefault();
     this.createNewTask(this.store.data, {x: position.x, y: position.y, type: 'mouse'});
-    this.store.setStore({type: '', data: null, event: null});
   }
 
   // SCROLLING
@@ -163,48 +107,6 @@ export class FlowEditorDirective implements OnInit {
       event.target.scrollTop,
       this.el.nativeElement.scrollWidth,
       this.el.nativeElement.scrollHeight);
-  }
-
-  @HostListener('mousedown', ['$event'])
-  onMouseDownMoveScroll(event) {
-    if (event.target.getAttribute('name') === this.nameTask || event.target.id === this.miniMap.getMiniMapViewName()) { return; }
-
-    document.body.style.cursor = 'move';
-    let startPositionMouse = {x: event.clientX, y: event.clientY};
-
-    const moveMouseScroll = (e): void => {
-      const startPositionX = this.el.nativeElement.scrollLeft;
-      const startPositionY = this.el.nativeElement.scrollTop;
-      const newPositionMouse = {x: e.clientX, y: e.clientY};
-      let newPositionX = startPositionX;
-      let newPositionY = startPositionY;
-      // set new X position
-      if (newPositionMouse.x > startPositionMouse.x) {
-        newPositionX = startPositionX - (newPositionMouse.x - startPositionMouse.x);
-      }
-      if (newPositionMouse.x < startPositionMouse.x) {
-        newPositionX = startPositionX + (startPositionMouse.x - newPositionMouse.x);
-      }
-      // set new Y position
-      if (newPositionMouse.y > startPositionMouse.y) {
-        newPositionY = startPositionY - (newPositionMouse.y - startPositionMouse.y);
-      }
-      if (newPositionMouse.y < startPositionMouse.y) {
-        newPositionY = startPositionY + (startPositionMouse.y - newPositionMouse.y);
-      }
-      // set position scroll
-      startPositionMouse = newPositionMouse;
-      this.el.nativeElement.scrollLeft = newPositionX;
-      this.el.nativeElement.scrollTop = newPositionY;
-    };
-
-    // add
-    window.addEventListener('mousemove', moveMouseScroll);
-    // mouse up
-    window.addEventListener('mouseup', () => {
-      document.body.style.cursor = 'default';
-      window.removeEventListener('mousemove', moveMouseScroll);
-    });
   }
 
   // SIZE
@@ -226,21 +128,6 @@ export class FlowEditorDirective implements OnInit {
     this.el.nativeElement.scrollLeft = (this.el.nativeElement.scrollWidth / 100) * percentX;
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
-
-  // // TASK CONTROL
-  // private onMoveTask = (positionX: number, positionY: number, taskId: string, swimlaneName: string): void => {
-  //   this.miniMap.setPositionTaskInPercent(taskId,
-  //     positionX / (this.el.nativeElement.scrollWidth / 100),
-  //     (positionY + this.mapSwimLane[swimlaneName].getTopPosition()) / (this.el.nativeElement.scrollHeight / 100));
-  // }
-
-  // private onCreateTask = (newTask: HTMLElement, positionX: number, positionY: number, config: any, swimlaneName: string): void => {
-  //   this.miniMap.addTask(newTask, positionX / (this.el.nativeElement.scrollWidth / 100),
-  //     (positionY + this.mapSwimLane[swimlaneName].getTopPosition()) / (this.el.nativeElement.scrollHeight / 100),
-  //     this.el.nativeElement.scrollWidth,
-  //     this.el.nativeElement.scrollHeight,
-  //     config);
-  // }
 
   // CREATE TASK
   // createNewTask and return id element new task

@@ -9,11 +9,13 @@ import { DataSourceService } from './services/data-source.service';
 import { FlowEditorComponent } from './flow-editor.component';
 import { UbixTaskDirective } from './directives/ubix-task.directive';
 import { FlowEditorDirective } from './directives/flow-editor.directive';
+import {UbixMovableViewDirective} from './directives/movable-view.directive';
 
 @NgModule({
   declarations: [
     FlowEditorComponent,
     UbixTaskDirective,
+    UbixMovableViewDirective,
     FlowEditorDirective,
   ],
   imports: [
