@@ -55,13 +55,15 @@ export class FlowEditor {
       scope: '1.0',
       reattachConnections: true,
       type: 'Dot',
-      isSource: true,
+      isSource: false,
       isTarget: true,
       connector: 'Bezier',
     };
-    const countInput = config ? config.inputPorts ? config.inputPorts.length : 0 : 0;
+    const countInput = config ? config.inputPorts ? config.inputPorts.length : 0 : 0;;
     const countOutput = config ? config.outputPorts ? config.outputPorts.length : 0 : 0;
     this.addEndpointInputPorts(newTaskId, portOptions, countInput);
+    portOptions.isSource = true;
+    portOptions.isTarget = false;
     this.addEndpointOutputPorts(newTaskId, portOptions, countOutput);
 
     this.jsPlumbInstance.repaintEverything();
