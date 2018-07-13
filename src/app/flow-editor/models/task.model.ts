@@ -1,5 +1,3 @@
-import {DataType} from './data-type.model';
-
 export class Task {
   public category: string;
   public id: number;
