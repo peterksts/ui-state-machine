@@ -9,21 +9,15 @@ import {
   ComponentFactoryResolver,
   Type
 } from '@angular/core';
-import { jsPlumb, jsPlumbInstance } from 'jsplumb';
+import {jsPlumb, jsPlumbInstance} from 'jsplumb';
 
-import { Store } from '../models/store.model';
-import { Minimap } from '../models/minimap.model';
-import { Swimlane } from '../models/swimlane.model';
-import { DataSourceService } from '../services/data-source.service';
-import { Task } from '../models/task.model';
+import {Store} from '../models/store.model';
+import {Minimap} from '../models/minimap.model';
+import {Swimlane} from '../models/swimlane.model';
+import {DataSourceService} from '../services/data-source.service';
+import {Task} from '../models/task.model';
 import {UbixTaskComponent} from '../components/ubix-task/ubix-task.component';
 import {ComponentRef} from '@angular/core/src/linker/component_factory';
-
-enum EditorMode {
-  Creating,
-  Panning,
-  Zooming
-}
 
 @Directive({
   selector: '[app-flow-editor-directive]',
@@ -35,19 +29,20 @@ export class FlowEditorDirective implements OnInit {
 
   private jsPlumbInstance: jsPlumbInstance;
   private nameTask = 'ubix-task';
-  private mapSwimLane: {[key: string]: Swimlane} = {};
-  private nameSwimlane = 'swimlane';
-  private listSwimLaneName: string[] = [];
+
+  // private mapSwimLane: {[key: string]: Swimlane} = {};
+  // private nameSwimlane = 'swimlane';
+  // private listSwimLaneName: string[] = [];
 
   constructor(private el: ElementRef,
               private viewContainerRef: ViewContainerRef,
               private resolver: ComponentFactoryResolver,
-              private dataSource: DataSourceService
-  ) { }
+              private dataSource: DataSourceService) {
+  }
 
   ngOnInit(): void {
     this.jsPlumbInstance = jsPlumb.getInstance({
-      DragOptions: { cursor: 'pointer', zIndex: 2000 },
+      DragOptions: {cursor: 'pointer', zIndex: 2000},
       ConnectionOverlays: [
         ['Arrow', {
           location: 1,
@@ -55,30 +50,26 @@ export class FlowEditorDirective implements OnInit {
           width: 11,
           length: 11,
           id: 'ARROW',
-          events: {
-            click: function () {
-            }
-          }
+          events: {}
         }],
         ['Label', {
           location: 0.1,
           id: 'label',
           cssClass: 'aLabel',
-          events: {
-            tap: function () {
-            }
-          }
+          events: {}
         }]
       ],
       Container: this.el.nativeElement.id
     });
 
     // mini-map scrolling to flow-editor-map
-    this.miniMap.setEventListenerMiniMapView((percentPosition: {percentX: number, percentY: number}) => {
+    this.miniMap.setEventListenerMiniMapView((percentPosition: { percentX: number, percentY: number }) => {
       this.setPositionScroll(percentPosition.percentX, percentPosition.percentY);
     });
+
     // set size mini-map view
     this.resizeMiniMapView();
+
     // jsPlumbInstance add bind
     this.addBindJsPlumb();
   }
@@ -96,23 +87,25 @@ export class FlowEditorDirective implements OnInit {
     });
   }
 
-  // DRAG AND DROP
   @HostListener('dragover', ['$event'])
   onDragOver(event) {
-    if (!this.store || this.store.type !== 'new_ubix_task') { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task') {
+      return;
+    }
 
     event.preventDefault();
   }
 
   @HostListener('drop', ['$event'])
   onDrop(event) {
-    if (!this.store || this.store.type !== 'new_ubix_task') { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task') {
+      return;
+    }
     const position = this.getPositionMouse(event);
     event.preventDefault();
     this.createNewTask(this.store.data, {x: position.x, y: position.y, type: 'mouse'});
   }
 
-  // SCROLLING
   @HostListener('scroll', ['$event'])
   onScroll(event) {
     this.miniMap.shift(event.target.scrollLeft,
@@ -121,7 +114,6 @@ export class FlowEditorDirective implements OnInit {
       this.el.nativeElement.scrollHeight);
   }
 
-  // SIZE
   @HostListener('window:resize')
   onWindowResize() {
     this.resizeMiniMapView();
@@ -135,20 +127,19 @@ export class FlowEditorDirective implements OnInit {
       this.el.nativeElement.scrollHeight);
   }
 
-  // set position scroll in percent
   private setPositionScroll(percentX: number, percentY: number) {
     this.el.nativeElement.scrollLeft = (this.el.nativeElement.scrollWidth / 100) * percentX;
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
-  // TASK CONTROL
-  private deleteTask = (id: string): void => {};
+  private deleteTask(id: string) {
+  }
 
-  private moveTask = (id: string, positionX: number, positionY: number): void => {
+  private moveTask(id: string, positionX: number, positionY: number) {
     this.miniMap.setPositionTaskInPercent(id,
       positionX / (this.el.nativeElement.scrollWidth / 100),
       positionY / (this.el.nativeElement.scrollHeight / 100));
-  };
+  }
 
   private createTask = (task: HTMLElement, positionX: number, positionY: number, config: Task): void => {
     this.miniMap.addTask(task, positionX / (this.el.nativeElement.scrollWidth / 100),
@@ -162,12 +153,12 @@ export class FlowEditorDirective implements OnInit {
   // createNewTask and return id element new task
   private createNewTask(config: any, pos?: any): string {
     const newTaskId = 'task-' + new Date().getTime();
-    //
     const factories = Array.from(this.resolver['_factories'].keys());
     const factoryClass = <Type<any>> factories.find((factory: any) => factory.name === 'UbixTaskComponent');
     const taskComponentFactory = this.resolver.resolveComponentFactory(factoryClass);
-    debugger;
+
     const taskComponentRef = this.viewContainerRef.createComponent(taskComponentFactory);
+    // this.viewContainerRef.insert(taskComponentFactory, 1);
     // set input
     (<UbixTaskComponent>taskComponentRef.instance).id = newTaskId;
     (<UbixTaskComponent>taskComponentRef.instance).config = config;
@@ -227,7 +218,7 @@ export class FlowEditorDirective implements OnInit {
   }
 
   // TOOLS
-  private getPositionMouse(event): {x: number, y: number} {
+  private getPositionMouse(event): { x: number, y: number } {
     const posMouseX = event.offsetX === undefined ? event.layerX : event.offsetX;
     const posMouseY = event.offsetY === undefined ? event.layerY : event.offsetY;
     const posScrollLeft = event.target.scrollLeft;

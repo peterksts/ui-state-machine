@@ -1,5 +1,5 @@
 import {Component, OnInit, Input, HostListener, ElementRef} from '@angular/core';
-import { Task } from '../../models/task.model';
+import {Task} from '../../models/task.model';
 import {jsPlumbInstance} from 'jsplumb';
 import {AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement} from '../../services/tools.service';
 import {PortOptions} from '../../models/port-options.model';
@@ -14,7 +14,7 @@ export class UbixTaskComponent implements OnInit {
   @Input() id: string;
   @Input() el: ElementRef;
   @Input() config: Task;
-  @Input() position: {x: number, y: number, type: string};
+  @Input() position: { x: number, y: number, type: string };
   @Input() jsPlumbInstance: jsPlumbInstance;
   @Input() onDeleteTask: (id: string) => void;
   @Input() onMoveTask: (id: string, positionX: number, positionY: number) => void;
@@ -28,8 +28,8 @@ export class UbixTaskComponent implements OnInit {
   public positionY = 0;
   public title: string;
 
-  constructor(
-  ) { }
+  constructor() {
+  }
 
   ngOnInit(): void {
   }
@@ -68,7 +68,6 @@ export class UbixTaskComponent implements OnInit {
     }
   }
 
-  // MOVE AND SELECT TASK
   @HostListener('mousedown', ['$event'])
   mouseDown(event) {
     this.mouseStartPositionX = event.clientX;
@@ -78,7 +77,9 @@ export class UbixTaskComponent implements OnInit {
 
   @HostListener('mousemove', ['$event'])
   mouseMove(event) {
-    if (!this.pressed) { return; }
+    if (!this.pressed) {
+      return;
+    }
 
     const startPositionX = this.positionX;
     const startPositionY = this.positionY;

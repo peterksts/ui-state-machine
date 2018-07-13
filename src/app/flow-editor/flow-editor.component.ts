@@ -1,8 +1,8 @@
-import {Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Task} from './models/task.model';
 import {Minimap} from './models/minimap.model';
 import {DataSourceService} from './services/data-source.service';
-import { Store } from './models/store.model';
+import {Store} from './models/store.model';
 
 @Component({
   selector: 'app-flow-editor',
@@ -20,7 +20,7 @@ export class FlowEditorComponent implements OnInit {
 
   ngOnInit() {
     this.dataSource.getTasksLibrary().then((res: Task[]) => {
-    // this.dataSource.getTasks().then((res: Task[]) => {
+      // this.dataSource.getTasks().then((res: Task[]) => {
       this.tasksLibrary = res;
     });
 

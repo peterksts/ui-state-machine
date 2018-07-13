@@ -1,4 +1,3 @@
-import {DataType} from '../models/data-type.model';
 import {Task} from '../models/task.model';
 
 export const Tasks: Task[] = [
@@ -459,8 +458,6 @@ export const Tasks: Task[] = [
     "displayName": "Bucket by Ranges",
     "nameTemplate": "Bucket {{column}} by Ranges",
     "category": "engineer",
-
-
     "parameters": {
       "jsonSchema": {
         "type": "object", "properties": {
@@ -538,7 +535,8 @@ export const Tasks: Task[] = [
       "produces": ["source"],
       "consumes": ["feature"],
       "version": 7
-    },
+    }
+  },
   {
     "_id": "5b3f8a92db58397a47d0067b",
     "name": "FEATURE - Pivot",

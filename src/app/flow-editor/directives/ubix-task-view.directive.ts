@@ -1,11 +1,12 @@
-import { Directive, HostListener } from '@angular/core';
+import {Directive, HostListener} from '@angular/core';
 
 @Directive({
   selector: '[ubix-task-view]'
 })
 export class UbixTaskViewDirective {
 
-  constructor() { }
+  constructor() {
+  }
 
   @HostListener('dragstart', ['$event'])
   onDragStart(event) {
