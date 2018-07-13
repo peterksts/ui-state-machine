@@ -278,17 +278,19 @@ export class FlowEditorDirective implements OnInit {
       scope: '1.0',
       reattachConnections: true,
       type: 'Dot',
-      isSource: true,
+      isSource: false,
       isTarget: true,
       connector: 'Bezier',
-      paintStyle: {fill: 'white', stroke: 'blue', strokeWidth: 3},
-      hoverPaintStyle: {stroke: 'lightblue'},
-      connectorStyle: {stroke: 'green', strokeWidth: 1},
+      paintStyle: {fill: 'rgba(95, 158, 160, 0.4)', stroke: 'rgba(95, 158, 160, 0.6)', strokeWidth: 3, radius: 5},
+      hoverPaintStyle: {stroke: 'rgba(95, 158, 160, 0.9)', fill: 'rgba(95, 158, 160, 0.7)'},
+      connectorStyle: {stroke: 'rgba(102, 96, 255, 0.9)', strokeWidth: 1},
       connectorHoverStyle: {strokeWidth: 2}
     };
     const countInput = config.consumes.length || 0;
     const countOutput = config.produces.length || 0;
     AddEndpointInputPorts(newTaskId, portOptions, countInput, this.jsPlumbInstance, newTaskId, '');
+    portOptions.isSource = true;
+    portOptions.isTarget = false;
     AddEndpointOutputPorts(newTaskId, portOptions, countOutput, this.jsPlumbInstance, newTaskId, '');
 
     this.jsPlumbInstance.repaintEverything();

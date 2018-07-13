@@ -176,6 +176,7 @@ export class Minimap {
       cssClass: 'minimap-endpoint',
       reattachConnections: true,
       type: 'Dot',
+      paintStyle: {radius: 1, fill: 'black'},
       isSource: false,
       isTarget: false,
       connector: 'Straight',
