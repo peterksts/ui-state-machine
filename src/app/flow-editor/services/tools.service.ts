@@ -21,6 +21,9 @@ export const AddEndpointInputPorts = (taskId: string,
                                       suffixId: string): IPort[] => {
   if (count === 0) { return; }
 
+  portOptions.isSource = false;
+  portOptions.isTarget = true;
+
   let anchors = [[0.5, 0]];
   if (count > 1) {
     anchors = [];
@@ -52,6 +55,9 @@ export const AddEndpointOutputPorts = (taskId: string,
                                        prefixId: string,
                                        suffixId: string): IPort[] => {
   if (count === 0) { return; }
+
+  portOptions.isSource = true;
+  portOptions.isTarget = false;
 
   let anchors = [[0.5, 1]];
   if (count > 1) {

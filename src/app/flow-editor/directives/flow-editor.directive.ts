@@ -1,11 +1,23 @@
-import { Directive, HostListener, Input, OnInit, ElementRef } from '@angular/core';
-import { Endpoint, jsPlumb, jsPlumbInstance } from 'jsplumb';
+import {
+  Directive,
+  HostListener,
+  Input,
+  OnInit,
+  ElementRef,
+  ViewChild,
+  ViewContainerRef,
+  ComponentFactoryResolver,
+  Type
+} from '@angular/core';
+import { jsPlumb, jsPlumbInstance } from 'jsplumb';
 
 import { Store } from '../models/store.model';
 import { Minimap } from '../models/minimap.model';
-import {AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement, ParseStylePxToNumber} from '../services/tools.service';
 import { Swimlane } from '../models/swimlane.model';
-import {DataSourceService} from '../services/data-source.service';
+import { DataSourceService } from '../services/data-source.service';
+import { Task } from '../models/task.model';
+import {UbixTaskComponent} from '../components/ubix-task/ubix-task.component';
+import {ComponentRef} from '@angular/core/src/linker/component_factory';
 
 enum EditorMode {
   Creating,
@@ -28,6 +40,8 @@ export class FlowEditorDirective implements OnInit {
   private listSwimLaneName: string[] = [];
 
   constructor(private el: ElementRef,
+              private viewContainerRef: ViewContainerRef,
+              private resolver: ComponentFactoryResolver,
               private dataSource: DataSourceService
   ) { }
 
@@ -43,7 +57,6 @@ export class FlowEditorDirective implements OnInit {
           id: 'ARROW',
           events: {
             click: function () {
-              alert('you clicked on the arrow overlay')
             }
           }
         }],
@@ -53,7 +66,6 @@ export class FlowEditorDirective implements OnInit {
           cssClass: 'aLabel',
           events: {
             tap: function () {
-              alert('hey');
             }
           }
         }]
@@ -129,68 +141,43 @@ export class FlowEditorDirective implements OnInit {
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
-  // CREATE TASK
-  // createNewTask and return id element new task
-  private createNewTask(config: any, pos?: any): string {
-    // create task body
-    const newTaskId = 'task-' + new Date().getTime();
-    const newTask = document.createElement('div');
-    newTask.classList.add('flow-editor-task');
-    newTask.id = newTaskId;
-    newTask.innerText = config.name || 'task';
-    newTask.setAttribute('onselectstart', 'return false');
-    newTask.setAttribute('onmousedown', 'return false');
-    newTask.setAttribute('name', this.nameTask);
-    this.el.nativeElement.appendChild(newTask);
-    // set position
-    if (pos && pos.x && pos.y) {
-      if (pos.type === 'mouse') {
-        const centerEl = GetCenterElement(newTask);
-        pos.x -= centerEl.x;
-        pos.y -= centerEl.y;
-      }
-    } else {
-      pos.x = 10;
-      pos.y = 10;
-    }
-    newTask.style.left = pos.x + 'px';
-    newTask.style.top = pos.y + 'px';
-    // create task ports
-    const portOptions = {
-      anchor: [],
-      maxConnections: 1,
-      parameters: {},
-      id: '',
-      cssClass: 'endpoint',
-      scope: '1.0',
-      reattachConnections: true,
-      type: 'Dot',
-      isSource: false,
-      isTarget: true,
-      connector: 'Bezier',
-      paintStyle: {fill: 'rgba(95, 158, 160, 0.4)', stroke: 'rgba(95, 158, 160, 0.6)', strokeWidth: 3, radius: 5},
-      hoverPaintStyle: {stroke: 'rgba(95, 158, 160, 0.9)', fill: 'rgba(95, 158, 160, 0.7)'},
-      connectorStyle: {stroke: 'rgba(102, 96, 255, 0.9)', strokeWidth: 1},
-      connectorHoverStyle: {strokeWidth: 2}
-    };
-    const countInput = config.consumes.length || 0;
-    const countOutput = config.produces.length || 0;
-    AddEndpointInputPorts(newTaskId, portOptions, countInput, this.jsPlumbInstance, newTaskId, '');
-    portOptions.isSource = true;
-    portOptions.isTarget = false;
-    AddEndpointOutputPorts(newTaskId, portOptions, countOutput, this.jsPlumbInstance, newTaskId, '');
+  // TASK CONTROL
+  private deleteTask = (id: string): void => {};
 
-    this.jsPlumbInstance.repaintEverything();
+  private moveTask = (id: string, positionX: number, positionY: number): void => {
+    this.miniMap.setPositionTaskInPercent(id,
+      positionX / (this.el.nativeElement.scrollWidth / 100),
+      positionY / (this.el.nativeElement.scrollHeight / 100));
+  };
 
-    this.addMoveTask(newTask);
-
-    // add task to mini-map
-    this.miniMap.addTask(newTask, pos.x / (this.el.nativeElement.scrollWidth / 100),
-      pos.y / (this.el.nativeElement.scrollHeight / 100),
+  private createTask = (task: HTMLElement, positionX: number, positionY: number, config: Task): void => {
+    this.miniMap.addTask(task, positionX / (this.el.nativeElement.scrollWidth / 100),
+      positionY / (this.el.nativeElement.scrollHeight / 100),
       this.el.nativeElement.scrollWidth,
       this.el.nativeElement.scrollHeight,
       config);
+  };
 
+  // CREATE TASK
+  // createNewTask and return id element new task
+  private createNewTask(config: any, pos?: any): string {
+    const newTaskId = 'task-' + new Date().getTime();
+    //
+    const factories = Array.from(this.resolver['_factories'].keys());
+    const factoryClass = <Type<any>> factories.find((factory: any) => factory.name === 'UbixTaskComponent');
+    const taskComponentFactory = this.resolver.resolveComponentFactory(factoryClass);
+    debugger;
+    const taskComponentRef = this.viewContainerRef.createComponent(taskComponentFactory);
+    // set input
+    (<UbixTaskComponent>taskComponentRef.instance).id = newTaskId;
+    (<UbixTaskComponent>taskComponentRef.instance).config = config;
+    (<UbixTaskComponent>taskComponentRef.instance).position = pos;
+    (<UbixTaskComponent>taskComponentRef.instance).jsPlumbInstance = this.jsPlumbInstance;
+    (<UbixTaskComponent>taskComponentRef.instance).onDeleteTask = this.deleteTask;
+    (<UbixTaskComponent>taskComponentRef.instance).onMoveTask = this.moveTask;
+    (<UbixTaskComponent>taskComponentRef.instance).onCreateTask = this.createTask;
+    (<UbixTaskComponent>taskComponentRef.instance).el = taskComponentRef.location;
+    (<UbixTaskComponent>taskComponentRef.instance).init();
     return newTaskId;
   }
 

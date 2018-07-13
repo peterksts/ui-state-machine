@@ -5,7 +5,7 @@
         <ngb-panel title="{{getCategoryName(cat.name)}}"
                    *ngFor="let cat of tasksLibrary">
           <ng-template ngbPanelContent>
-              <div app-ubix-task
+              <div ubix-task-view
                    draggable="true"
                    (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: task})"
                    (dragend)="store.setStore({type: null, event: null, data: null})"
@@ -23,7 +23,7 @@
            [store]="store" [miniMap]="minimap"
            id="flow-editor"
            class="flow-editor">
-        <div id="flow-editor-area" style="position: absolute; width: 2000px; height: 2000px; z-index: -9999"></div>
+        <div id="flow-editor-area" style="position: absolute; width: 2000px; height: 2000px; z-index: -9999" #flowEditorArea></div>
         <div id="minimap" class="minimap">
           <div class="minimap-view" id="minimap-view" name="minimap-view"
                style="top: 0px; left: 0px"

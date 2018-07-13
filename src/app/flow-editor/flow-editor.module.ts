@@ -7,16 +7,18 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { routes } from './flow-editor.routing';
 import { DataSourceService } from './services/data-source.service';
 import { FlowEditorComponent } from './flow-editor.component';
-import { UbixTaskDirective } from './directives/ubix-task.directive';
+import { UbixTaskViewDirective } from './directives/ubix-task-view.directive';
 import { FlowEditorDirective } from './directives/flow-editor.directive';
-import {UbixMovableViewDirective} from './directives/movable-view.directive';
+import { UbixMovableViewDirective } from './directives/movable-view.directive';
+import { UbixTaskComponent } from './components/ubix-task/ubix-task.component';
 
 @NgModule({
   declarations: [
     FlowEditorComponent,
-    UbixTaskDirective,
+    UbixTaskViewDirective,
     UbixMovableViewDirective,
     FlowEditorDirective,
+    UbixTaskComponent,
   ],
   imports: [
     CommonModule,
@@ -26,5 +28,6 @@ import {UbixMovableViewDirective} from './directives/movable-view.directive';
   providers: [
     DataSourceService
   ],
+  entryComponents: [UbixTaskComponent],
 })
 export class FlowEditorModule { }

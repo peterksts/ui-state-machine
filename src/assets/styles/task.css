@@ -41,10 +41,12 @@
   border-radius: 10px;
   background: white;
   border: 2px solid cadetblue;
-  /*border: 2px solid rgba(102, 96, 255, 0.9);*/
   cursor: pointer;
   text-align: center;
   min-height: 40px;
+  font-size: 13px;
+  margin: 0px;
+  padding-top: 3px;
 }
 
 .flow-editor .minimap {
@@ -81,7 +83,6 @@
 }
 
 .minimap-endpoint {
-  /*transform: scale(0.1, 0.1);*/
 }
 
 .endpoint {

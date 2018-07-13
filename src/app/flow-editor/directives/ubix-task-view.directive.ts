@@ -1,9 +1,9 @@
 import { Directive, HostListener } from '@angular/core';
 
 @Directive({
-  selector: '[app-ubix-task]'
+  selector: '[ubix-task-view]'
 })
-export class UbixTaskDirective {
+export class UbixTaskViewDirective {
 
   constructor() { }
 

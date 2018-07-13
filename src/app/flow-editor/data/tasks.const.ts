@@ -538,7 +538,8 @@ export const Tasks: Task[] = [
       "produces": ["source"],
       "consumes": ["feature"],
       "version": 7
-    }, {
+    },
+  {
     "_id": "5b3f8a92db58397a47d0067b",
     "name": "FEATURE - Pivot",
     "displayName": "Pivot",

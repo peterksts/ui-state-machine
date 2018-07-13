@@ -1,6 +1,7 @@
 import { jsPlumbInstance } from 'jsplumb';
 import { Store } from './store.model';
 import {AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement, ParseStylePxToNumber} from '../services/tools.service';
+import {PortOptions} from './port-options.model';
 
 export type CreateTaskListener = (newTask: HTMLElement, positionX: number, positionY: number, config: any, swimlaneName: string) => void;
 export type MoveTaskListener = (positionX: number, positionY: number, taskId: string, swimlaneName: string) => void;
@@ -149,8 +150,8 @@ export class Swimlane {
     };
     const countInput = config.consumes.length || 0;
     const countOutput = config.produces.length || 0;
-    AddEndpointInputPorts(newTaskId, portOptions, countInput, this.jsPlumbInstance, newTaskId, '');
-    AddEndpointOutputPorts(newTaskId, portOptions, countOutput, this.jsPlumbInstance, newTaskId, '');
+    AddEndpointInputPorts(newTaskId, PortOptions, countInput, this.jsPlumbInstance, newTaskId, '');
+    AddEndpointOutputPorts(newTaskId, PortOptions, countOutput, this.jsPlumbInstance, newTaskId, '');
 
     this.jsPlumbInstance.repaintEverything();
 
