@@ -23,10 +23,9 @@ export class FlowEditorDirective implements OnInit {
 
   private jsPlumbInstance: jsPlumbInstance;
   private nameTask = 'ubix-task';
-  private nameSwimlane = 'swimlane';
   private mapSwimLane: {[key: string]: Swimlane} = {};
+  private nameSwimlane = 'swimlane';
   private listSwimLaneName: string[] = [];
-  private useSwimLane = true;
 
   constructor(private el: ElementRef,
               private dataSource: DataSourceService
@@ -44,24 +43,6 @@ export class FlowEditorDirective implements OnInit {
     this.resizeMiniMapView();
     // jsPlumbInstance add bind
     this.addBindJsPlumb();
-    // swimlane
-    this.dataSource.categories.forEach((categorie) => {
-      const red = Math.random() * 255;
-      const green = Math.random() * 255;
-      const blue = Math.random() * 255;
-      this.createSwimLanes({name: categorie,
-        color: 'rgba(' + red + ', ' + green + ', ' + blue + ', 0.05',
-        borderColor: 'rgba(' + red + ', ' + green + ', ' + blue + ', 0.2',
-        height: 200});
-    });
-    // this.createSwimLanes( {name: 'collection', color: 'rgba(255, 77, 74, 0.05)', borderColor: 'rgba(255, 77, 74, 0.2)', height: 200},
-    //   {name: 'transform', color: 'rgba(87, 255, 84, 0.05)', borderColor: 'rgba(87, 255, 84, 0.2)', height: 200},
-    //   {name: 'driver clustering', color: 'rgba(102, 96, 255, 0.05)', borderColor: 'rgba(102, 96, 255, 0.2)', height: 200});
-    // TODO: test
-    // this.swimLanesOff();
-    // setTimeout(() => {
-    //   this.swimLanesOff();
-    // }, 5000);
   }
 
   // JS PLUMB
@@ -77,66 +58,66 @@ export class FlowEditorDirective implements OnInit {
     });
   }
 
-  // SWIMLANE
-  private createSwimLanes(...params: {name: string, color: string, borderColor: string, height: number}[]) {
-    params.forEach((param) => {
-      const newSwimLane = document.createElement('div');
-      newSwimLane.id = this.nameSwimlane + '-' + param.name;
-      newSwimLane.classList.add('swimlane');
-      newSwimLane.setAttribute('name', this.nameSwimlane);
-      newSwimLane.style.width = this.el.nativeElement.scrollWidth + 'px';
-      newSwimLane.style.backgroundColor = param.color;
-      newSwimLane.style.borderColor = param.borderColor;
-      newSwimLane.style.height = param.height + 'px';
-      this.el.nativeElement.appendChild(newSwimLane);
-      this.mapSwimLane[param.name] = new Swimlane(newSwimLane.id,
-        param.name,
-        this.onMoveTask,
-        this.onCreateTask,
-        this.jsPlumbInstance,
-        this.store,
-        this.nameTask,
-        this.el.nativeElement.id);
-      this.listSwimLaneName.push(param.name);
-    });
-  }
-
-  public swimLanesOff() {
-    this.useSwimLane = false;
-    this.listSwimLaneName.forEach((nameSwimlane) => {
-      this.mapSwimLane[nameSwimlane].visibleOff();
-      const divAll = this.el.nativeElement.getElementsByTagName('div');
-      for (let i = 0; i < divAll.length; i++) {
-        const div = divAll.item(i);
-        if (div.getAttribute('name') !== this.nameTask) { continue; }
-
-        const config = JSON.parse(div.getAttribute('config'));
-        const position = {x: ParseStylePxToNumber(div.style.left),
-          y: ParseStylePxToNumber(div.style.top) + this.mapSwimLane[nameSwimlane].getTopPosition()};
-        this.mapSwimLane[nameSwimlane].deleteChild(div);
-        this.createNewTask(config, position, div.id);
-      }
-    });
-  }
-
-  public swimLanesOn() {
-    this.useSwimLane = true;
-    this.listSwimLaneName.forEach((nameSwimlane) => {
-      this.mapSwimLane[nameSwimlane].visibleOn();
-    });
-  }
+  // // SWIMLANE
+  // private createSwimLanes(...params: {name: string, color: string, borderColor: string, height: number}[]) {
+  //   params.forEach((param) => {
+  //     const newSwimLane = document.createElement('div');
+  //     newSwimLane.id = this.nameSwimlane + '-' + param.name;
+  //     newSwimLane.classList.add('swimlane');
+  //     newSwimLane.setAttribute('name', this.nameSwimlane);
+  //     newSwimLane.style.width = this.el.nativeElement.scrollWidth + 'px';
+  //     newSwimLane.style.backgroundColor = param.color;
+  //     newSwimLane.style.borderColor = param.borderColor;
+  //     newSwimLane.style.height = param.height + 'px';
+  //     this.el.nativeElement.appendChild(newSwimLane);
+  //     this.mapSwimLane[param.name] = new Swimlane(newSwimLane.id,
+  //       param.name,
+  //       this.onMoveTask,
+  //       this.onCreateTask,
+  //       this.jsPlumbInstance,
+  //       this.store,
+  //       this.nameTask,
+  //       this.el.nativeElement.id);
+  //     this.listSwimLaneName.push(param.name);
+  //   });
+  // }
+  //
+  // public swimLanesOff() {
+  //   this.useSwimLane = false;
+  //   this.listSwimLaneName.forEach((nameSwimlane) => {
+  //     this.mapSwimLane[nameSwimlane].visibleOff();
+  //     const divAll = this.el.nativeElement.getElementsByTagName('div');
+  //     for (let i = 0; i < divAll.length; i++) {
+  //       const div = divAll.item(i);
+  //       if (div.getAttribute('name') !== this.nameTask) { continue; }
+  //
+  //       const config = JSON.parse(div.getAttribute('config'));
+  //       const position = {x: ParseStylePxToNumber(div.style.left),
+  //         y: ParseStylePxToNumber(div.style.top) + this.mapSwimLane[nameSwimlane].getTopPosition()};
+  //       this.mapSwimLane[nameSwimlane].deleteChild(div);
+  //       this.createNewTask(config, position, div.id);
+  //     }
+  //   });
+  // }
+  //
+  // public swimLanesOn() {
+  //   this.useSwimLane = true;
+  //   this.listSwimLaneName.forEach((nameSwimlane) => {
+  //     this.mapSwimLane[nameSwimlane].visibleOn();
+  //   });
+  // }
 
   // DRAG AND DROP
   @HostListener('dragover', ['$event'])
   onDragOver(event) {
-    if (!this.store || this.store.type !== 'new_ubix_task' || this.useSwimLane) { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task') { return; }
 
     event.preventDefault();
   }
 
   @HostListener('drop', ['$event'])
   onDrop(event) {
-    if (!this.store || this.store.type !== 'new_ubix_task' || this.useSwimLane) { return; }
+    if (!this.store || this.store.type !== 'new_ubix_task') { return; }
 
     const position = this.getPositionMouse(event);
 
@@ -216,20 +197,20 @@ export class FlowEditorDirective implements OnInit {
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
-  // TASK CONTROL
-  private onMoveTask = (positionX: number, positionY: number, taskId: string, swimlaneName: string): void => {
-    this.miniMap.setPositionTaskInPercent(taskId,
-      positionX / (this.el.nativeElement.scrollWidth / 100),
-      (positionY + this.mapSwimLane[swimlaneName].getTopPosition()) / (this.el.nativeElement.scrollHeight / 100));
-  }
+  // // TASK CONTROL
+  // private onMoveTask = (positionX: number, positionY: number, taskId: string, swimlaneName: string): void => {
+  //   this.miniMap.setPositionTaskInPercent(taskId,
+  //     positionX / (this.el.nativeElement.scrollWidth / 100),
+  //     (positionY + this.mapSwimLane[swimlaneName].getTopPosition()) / (this.el.nativeElement.scrollHeight / 100));
+  // }
 
-  private onCreateTask = (newTask: HTMLElement, positionX: number, positionY: number, config: any, swimlaneName: string): void => {
-    this.miniMap.addTask(newTask, positionX / (this.el.nativeElement.scrollWidth / 100),
-      (positionY + this.mapSwimLane[swimlaneName].getTopPosition()) / (this.el.nativeElement.scrollHeight / 100),
-      this.el.nativeElement.scrollWidth,
-      this.el.nativeElement.scrollHeight,
-      config);
-  }
+  // private onCreateTask = (newTask: HTMLElement, positionX: number, positionY: number, config: any, swimlaneName: string): void => {
+  //   this.miniMap.addTask(newTask, positionX / (this.el.nativeElement.scrollWidth / 100),
+  //     (positionY + this.mapSwimLane[swimlaneName].getTopPosition()) / (this.el.nativeElement.scrollHeight / 100),
+  //     this.el.nativeElement.scrollWidth,
+  //     this.el.nativeElement.scrollHeight,
+  //     config);
+  // }
 
   // CREATE TASK
   // createNewTask and return id element new task
