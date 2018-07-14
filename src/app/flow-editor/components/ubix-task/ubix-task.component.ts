@@ -1,15 +1,15 @@
-import {Component, OnInit, Input, HostListener, ElementRef} from '@angular/core';
-import {Task} from '../../models/task.model';
-import {jsPlumbInstance} from 'jsplumb';
-import {AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement} from '../../services/tools.service';
-import {PortOptions} from '../../models/port-options.model';
+import { Component, OnInit, Input, HostListener, ElementRef, OnDestroy } from '@angular/core';
+import { Task } from '../../models/task.model';
+import { jsPlumbInstance } from 'jsplumb';
+import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from '../../services/tools.service';
+import { PortOptions } from '../../models/port-options.model';
 
 @Component({
   selector: 'app-ubix-task',
   templateUrl: './ubix-task.component.html',
   styleUrls: ['./ubix-task.component.css']
 })
-export class UbixTaskComponent implements OnInit {
+export class UbixTaskComponent implements OnInit, OnDestroy {
 
   @Input() id: string;
   @Input() el: ElementRef;
@@ -20,18 +20,21 @@ export class UbixTaskComponent implements OnInit {
   @Input() onMoveTask: (id: string, positionX: number, positionY: number) => void;
   @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, config: Task) => void;
 
-  private task: HTMLElement;
+  private interval: any; // for destroy UbixTaskComponent
   private mouseStartPositionX: number;
   private mouseStartPositionY: number;
   private pressed = false;
-  public positionX = 0;
-  public positionY = 0;
   public title: string;
 
   constructor() {
   }
 
   ngOnInit(): void {
+  }
+
+  ngOnDestroy(): void {
+    this.onDeleteTask(this.id);
+    clearInterval(this.interval);
   }
 
   public init() {
@@ -51,20 +54,18 @@ export class UbixTaskComponent implements OnInit {
       this.position.x = 10;
       this.position.y = 10;
     }
-    this.positionX = this.position.x;
-    this.positionY = this.position.y;
-    this.el.nativeElement.style.left = '10px';
-    this.el.nativeElement.style.top = '10px';
+    this.el.nativeElement.style.left = this.position.x + 'px';
+    this.el.nativeElement.style.top = this.position.y + 'px';
     // add endpoint
     const countInput = this.config.consumes.length || 0;
     const countOutput = this.config.produces.length || 0;
     AddEndpointInputPorts(this.id, PortOptions, countInput, this.jsPlumbInstance, this.id, '');
     AddEndpointOutputPorts(this.id, PortOptions, countOutput, this.jsPlumbInstance, this.id, '');
 
-    this.jsPlumbInstance.repaint(this.el.nativeElement);
+    this.jsPlumbInstance.repaintEverything();
     // callback
     if (this.onCreateTask) {
-      this.onCreateTask(this.el.nativeElement, this.positionX, this.positionY, this.config);
+      this.onCreateTask(this.el.nativeElement, this.position.x, this.position.y, this.config);
     }
   }
 
@@ -75,14 +76,14 @@ export class UbixTaskComponent implements OnInit {
     this.pressed = true;
   }
 
-  @HostListener('mousemove', ['$event'])
+  @HostListener('body:mousemove', ['$event'])
   mouseMove(event) {
     if (!this.pressed) {
       return;
     }
 
-    const startPositionX = this.positionX;
-    const startPositionY = this.positionY;
+    const startPositionX = parseInt(this.el.nativeElement.style.left.slice(0, this.el.nativeElement.style.left.length - 2), null);
+    const startPositionY = parseInt(this.el.nativeElement.style.top.slice(0, this.el.nativeElement.style.top.length - 2), null);
     let newPositionX = startPositionX;
     let newPositionY = startPositionY;
     // set new X position
@@ -102,16 +103,16 @@ export class UbixTaskComponent implements OnInit {
     // set position
     this.mouseStartPositionX = event.clientX;
     this.mouseStartPositionY = event.clientY;
-    this.positionX = newPositionX;
-    this.positionY = newPositionY;
-    this.jsPlumbInstance.repaint(this.task);
+    this.el.nativeElement.style.left = newPositionX + 'px';
+    this.el.nativeElement.style.top = newPositionY + 'px';
+    this.jsPlumbInstance.repaintEverything();
     // callback
     if (this.onMoveTask) {
-      this.onMoveTask(this.id, this.positionX, this.positionY);
+      this.onMoveTask(this.id, newPositionX, newPositionY);
     }
   }
 
-  @HostListener('mouseup', ['$event'])
+  @HostListener('body:mouseup', ['$event'])
   mouseUp(event) {
     this.pressed = false;
   }

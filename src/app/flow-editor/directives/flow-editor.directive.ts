@@ -26,6 +26,7 @@ export class FlowEditorDirective implements OnInit {
 
   @Input() store: Store;
   @Input() miniMap: Minimap;
+  @Input() viewContainerRef: ViewContainerRef;
 
   private jsPlumbInstance: jsPlumbInstance;
   private nameTask = 'ubix-task';
@@ -35,7 +36,6 @@ export class FlowEditorDirective implements OnInit {
   // private listSwimLaneName: string[] = [];
 
   constructor(private el: ElementRef,
-              private viewContainerRef: ViewContainerRef,
               private resolver: ComponentFactoryResolver,
               private dataSource: DataSourceService) {
   }
@@ -78,6 +78,7 @@ export class FlowEditorDirective implements OnInit {
   private addBindJsPlumb(): void {
     this.jsPlumbInstance.bind('connection', (info) => {
       this.miniMap.addConnect(info.sourceEndpoint.id, info.targetEndpoint.id);
+      info.connection.setLabel('name_table');
     });
     this.jsPlumbInstance.bind('connectionDetached', (info) => {
       this.miniMap.deleteConnect(info.sourceEndpoint.id, info.targetEndpoint.id);
@@ -132,10 +133,10 @@ export class FlowEditorDirective implements OnInit {
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
-  private deleteTask(id: string) {
+  private deleteTask = (id: string) => {
   }
 
-  private moveTask(id: string, positionX: number, positionY: number) {
+  private moveTask = (id: string, positionX: number, positionY: number) => {
     this.miniMap.setPositionTaskInPercent(id,
       positionX / (this.el.nativeElement.scrollWidth / 100),
       positionY / (this.el.nativeElement.scrollHeight / 100));
@@ -147,18 +148,16 @@ export class FlowEditorDirective implements OnInit {
       this.el.nativeElement.scrollWidth,
       this.el.nativeElement.scrollHeight,
       config);
-  };
+  }
 
   // CREATE TASK
   // createNewTask and return id element new task
   private createNewTask(config: any, pos?: any): string {
     const newTaskId = 'task-' + new Date().getTime();
     const factories = Array.from(this.resolver['_factories'].keys());
-    const factoryClass = <Type<any>> factories.find((factory: any) => factory.name === 'UbixTaskComponent');
+    const factoryClass = <Type<UbixTaskComponent>> factories.find((factory: any) => factory.name === 'UbixTaskComponent');
     const taskComponentFactory = this.resolver.resolveComponentFactory(factoryClass);
-
-    const taskComponentRef = this.viewContainerRef.createComponent(taskComponentFactory);
-    // this.viewContainerRef.insert(taskComponentFactory, 1);
+    const taskComponentRef = this.viewContainerRef.createComponent(taskComponentFactory, -1, this.viewContainerRef.injector);
     // set input
     (<UbixTaskComponent>taskComponentRef.instance).id = newTaskId;
     (<UbixTaskComponent>taskComponentRef.instance).config = config;
@@ -170,51 +169,6 @@ export class FlowEditorDirective implements OnInit {
     (<UbixTaskComponent>taskComponentRef.instance).el = taskComponentRef.location;
     (<UbixTaskComponent>taskComponentRef.instance).init();
     return newTaskId;
-  }
-
-  private addMoveTask(elemet: HTMLElement): void {
-    elemet.addEventListener('mousedown', (e) => {
-      let mouseStartX = e.clientX;
-      let mouseStartY = e.clientY;
-
-      const moveTask = (even): void => {
-        const startPositionX = parseInt(elemet.style.left.slice(0, elemet.style.left.length - 2), null);
-        const startPositionY = parseInt(elemet.style.top.slice(0, elemet.style.top.length - 2), null);
-        let newPositionX = startPositionX;
-        let newPositionY = startPositionY;
-        // set new X position
-        if (even.clientX > mouseStartX) {
-          newPositionX = startPositionX + (even.clientX - mouseStartX);
-        }
-        if (even.clientX < mouseStartX) {
-          newPositionX = startPositionX - (mouseStartX - even.clientX);
-        }
-        // set new Y position
-        if (even.clientY > mouseStartY) {
-          newPositionY = startPositionY + (even.clientY - mouseStartY);
-        }
-        if (even.clientY < mouseStartY) {
-          newPositionY = startPositionY - (mouseStartY - even.clientY);
-        }
-        // set position
-        mouseStartX = even.clientX;
-        mouseStartY = even.clientY;
-        elemet.style.left = newPositionX + 'px';
-        elemet.style.top = newPositionY + 'px';
-        this.jsPlumbInstance.repaintEverything();
-        // set position task mini-map
-        this.miniMap.setPositionTaskInPercent(elemet.id,
-          newPositionX / (this.el.nativeElement.scrollWidth / 100),
-          newPositionY / (this.el.nativeElement.scrollHeight / 100));
-      };
-
-      // mouse move
-      this.el.nativeElement.addEventListener('mousemove', moveTask);
-      // mouse up
-      this.el.nativeElement.addEventListener('mouseup', () => {
-        this.el.nativeElement.removeEventListener('mousemove', moveTask);
-      });
-    });
   }
 
   // TOOLS
