@@ -186,10 +186,10 @@ export class Minimap {
     const outputPorts = AddEndpointOutputPorts(newTaskEl.id, portOptions, countOutput, this.jsPlumbInstance, taskEl.id, '');
     // set map ports
     if (inputPorts) {
-      inputPorts.forEach((port) => { this.mapPorts[port.Endpoint.id] = port.Endpoint; });
+      inputPorts.forEach((endpoint) => { this.mapPorts[endpoint.id] = endpoint; });
     }
     if (outputPorts) {
-      outputPorts.forEach((port) => { this.mapPorts[port.Endpoint.id] = port.Endpoint; });
+      outputPorts.forEach((endpoint) => { this.mapPorts[endpoint.id] = endpoint; });
     }
   }
 

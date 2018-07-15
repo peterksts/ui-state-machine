@@ -4,19 +4,17 @@ import {
   Input,
   OnInit,
   ElementRef,
-  ViewChild,
   ViewContainerRef,
   ComponentFactoryResolver,
   Type
 } from '@angular/core';
 import {jsPlumb, jsPlumbInstance} from 'jsplumb';
 
-import {Store} from '../models/store.model';
-import {Minimap} from '../models/minimap.model';
-import {Swimlane} from '../models/swimlane.model';
-import {DataSourceService} from '../services/data-source.service';
-import {Task} from '../models/task.model';
-import {UbixTaskComponent} from '../components/ubix-task/ubix-task.component';
+import { Store } from '../models/store.model';
+import { Minimap } from '../models/minimap.model';
+import { DataSourceService } from '../services/data-source.service';
+import { Task } from '../models/task.model';
+import { UbixTaskComponent } from '../components/ubix-task/ubix-task.component';
 import {ComponentRef} from '@angular/core/src/linker/component_factory';
 
 @Directive({
@@ -29,7 +27,7 @@ export class FlowEditorDirective implements OnInit {
   @Input() viewContainerRef: ViewContainerRef;
 
   private jsPlumbInstance: jsPlumbInstance;
-  private nameTask = 'ubix-task';
+  private mapUbixTask: {[key: string]: ComponentRef<UbixTaskComponent>} = {};
 
   // private mapSwimLane: {[key: string]: Swimlane} = {};
   // private nameSwimlane = 'swimlane';
@@ -78,7 +76,6 @@ export class FlowEditorDirective implements OnInit {
   private addBindJsPlumb(): void {
     this.jsPlumbInstance.bind('connection', (info) => {
       this.miniMap.addConnect(info.sourceEndpoint.id, info.targetEndpoint.id);
-      info.connection.setLabel('name_table');
     });
     this.jsPlumbInstance.bind('connectionDetached', (info) => {
       this.miniMap.deleteConnect(info.sourceEndpoint.id, info.targetEndpoint.id);
@@ -133,6 +130,28 @@ export class FlowEditorDirective implements OnInit {
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
+  // CREATE TASK
+  // createNewTask and add in mapUbixTask new task
+  private createNewTask(config: any, pos?: any) {
+    const newTaskId = 'task-' + new Date().getTime();
+    const factories = Array.from(this.resolver['_factories'].keys());
+    const factoryClass = <Type<UbixTaskComponent>> factories.find((factory: any) => factory.name === 'UbixTaskComponent');
+    const taskComponentFactory = this.resolver.resolveComponentFactory(factoryClass);
+    const taskComponentRef = this.viewContainerRef.createComponent(taskComponentFactory, -1, this.viewContainerRef.injector);
+    // set input
+    taskComponentRef.instance.id = newTaskId;
+    taskComponentRef.instance.config = config;
+    taskComponentRef.instance.position = pos;
+    taskComponentRef.instance.jsPlumbInstance = this.jsPlumbInstance;
+    taskComponentRef.instance.onDeleteTask = this.deleteTask;
+    taskComponentRef.instance.onMoveTask = this.moveTask;
+    taskComponentRef.instance.onCreateTask = this.createTask;
+    taskComponentRef.instance.el = taskComponentRef.location;
+    taskComponentRef.instance.elViewRef = taskComponentRef.hostView;
+    taskComponentRef.instance.init();
+    this.mapUbixTask[taskComponentRef.instance.id] = taskComponentRef;
+  }
+
   private deleteTask = (id: string) => {
   }
 
@@ -148,27 +167,6 @@ export class FlowEditorDirective implements OnInit {
       this.el.nativeElement.scrollWidth,
       this.el.nativeElement.scrollHeight,
       config);
-  }
-
-  // CREATE TASK
-  // createNewTask and return id element new task
-  private createNewTask(config: any, pos?: any): string {
-    const newTaskId = 'task-' + new Date().getTime();
-    const factories = Array.from(this.resolver['_factories'].keys());
-    const factoryClass = <Type<UbixTaskComponent>> factories.find((factory: any) => factory.name === 'UbixTaskComponent');
-    const taskComponentFactory = this.resolver.resolveComponentFactory(factoryClass);
-    const taskComponentRef = this.viewContainerRef.createComponent(taskComponentFactory, -1, this.viewContainerRef.injector);
-    // set input
-    (<UbixTaskComponent>taskComponentRef.instance).id = newTaskId;
-    (<UbixTaskComponent>taskComponentRef.instance).config = config;
-    (<UbixTaskComponent>taskComponentRef.instance).position = pos;
-    (<UbixTaskComponent>taskComponentRef.instance).jsPlumbInstance = this.jsPlumbInstance;
-    (<UbixTaskComponent>taskComponentRef.instance).onDeleteTask = this.deleteTask;
-    (<UbixTaskComponent>taskComponentRef.instance).onMoveTask = this.moveTask;
-    (<UbixTaskComponent>taskComponentRef.instance).onCreateTask = this.createTask;
-    (<UbixTaskComponent>taskComponentRef.instance).el = taskComponentRef.location;
-    (<UbixTaskComponent>taskComponentRef.instance).init();
-    return newTaskId;
   }
 
   // TOOLS

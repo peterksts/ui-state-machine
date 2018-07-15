@@ -1,4 +1,4 @@
-import {Endpoint, EndpointOptions, jsPlumbInstance} from 'jsplumb';
+import { Endpoint, EndpointOptions, jsPlumbInstance } from 'jsplumb';
 
 export const GetCenterElement = (el: HTMLElement): {x: number, y: number} => {
   const rect = el.getBoundingClientRect();
@@ -8,17 +8,12 @@ export const GetCenterElement = (el: HTMLElement): {x: number, y: number} => {
   return {x: x, y: y};
 };
 
-export interface IPort {
-  id: string;
-  Endpoint: Endpoint;
-}
-
 export const AddEndpointInputPorts = (taskId: string,
                                       portOptions: EndpointOptions,
                                       count: number,
                                       jsPlumbInst: jsPlumbInstance,
                                       prefixId: string,
-                                      suffixId: string): IPort[] => {
+                                      suffixId: string): Endpoint[] => {
   if (count === 0) { return; }
 
   portOptions.isSource = false;
@@ -37,13 +32,14 @@ export const AddEndpointInputPorts = (taskId: string,
     }
   }
 
-  const listPort: IPort[] = [];
+  const listPort: Endpoint[] = [];
   anchors.forEach((anchor, index) => {
     portOptions.anchor = anchor;
     portOptions.id = prefixId + '-in_port-' + index + suffixId;
+    portOptions.uuid = portOptions.id;
     const endpoint = jsPlumbInst.addEndpoint(taskId, portOptions);
     (<Endpoint>endpoint).id = portOptions.id;
-    listPort.push({id: portOptions.id, Endpoint: <Endpoint>endpoint});
+    listPort.push(<Endpoint>endpoint);
   });
   return listPort;
 };
@@ -53,7 +49,7 @@ export const AddEndpointOutputPorts = (taskId: string,
                                        count: number,
                                        jsPlumbInst: jsPlumbInstance,
                                        prefixId: string,
-                                       suffixId: string): IPort[] => {
+                                       suffixId: string): Endpoint[] => {
   if (count === 0) { return; }
 
   portOptions.isSource = true;
@@ -72,13 +68,14 @@ export const AddEndpointOutputPorts = (taskId: string,
     }
   }
 
-  const listPort: IPort[] = [];
+  const listPort: Endpoint[] = [];
   anchors.forEach((anchor, index) => {
     portOptions.anchor = anchor;
     portOptions.id = prefixId + '-out_port-' + index + suffixId;
+    portOptions.uuid = portOptions.id;
     const endpoint = jsPlumbInst.addEndpoint(taskId, portOptions);
     (<Endpoint>endpoint).id = portOptions.id;
-    listPort.push({id: portOptions.id, Endpoint: <Endpoint>endpoint});
+    listPort.push(<Endpoint>endpoint);
   });
   return listPort;
 };

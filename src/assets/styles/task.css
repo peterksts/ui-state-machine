@@ -45,8 +45,8 @@
   text-align: center;
   min-height: 40px;
   font-size: 13px;
+  padding: 0px;
   margin: 0px;
-  padding-top: 3px;
 }
 
 .flow-editor .minimap {

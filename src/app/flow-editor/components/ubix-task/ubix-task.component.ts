@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, HostListener, ElementRef, OnDestroy } from '@angular/core';
+import { Component, Input, HostListener, ElementRef, OnDestroy, ViewRef, AfterViewInit } from '@angular/core';
 import { Task } from '../../models/task.model';
-import { jsPlumbInstance } from 'jsplumb';
+import {Connection, jsPlumbInstance, UUID} from 'jsplumb';
 import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from '../../services/tools.service';
 import { PortOptions } from '../../models/port-options.model';
 
@@ -9,10 +9,11 @@ import { PortOptions } from '../../models/port-options.model';
   templateUrl: './ubix-task.component.html',
   styleUrls: ['./ubix-task.component.css']
 })
-export class UbixTaskComponent implements OnInit, OnDestroy {
+export class UbixTaskComponent implements AfterViewInit, OnDestroy {
 
   @Input() id: string;
   @Input() el: ElementRef;
+  @Input() elViewRef: ViewRef;
   @Input() config: Task;
   @Input() position: { x: number, y: number, type: string };
   @Input() jsPlumbInstance: jsPlumbInstance;
@@ -20,29 +21,49 @@ export class UbixTaskComponent implements OnInit, OnDestroy {
   @Input() onMoveTask: (id: string, positionX: number, positionY: number) => void;
   @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, config: Task) => void;
 
-  private interval: any; // for destroy UbixTaskComponent
   private mouseStartPositionX: number;
   private mouseStartPositionY: number;
   private pressed = false;
+  private listInputPorts: string[] = [];
+  private listOutputPorts: string[] = [];
+  private listInputConnections: Connection[] = [];
+  private listOutputConnections: Connection[] = [];
   public title: string;
 
-  constructor() {
-  }
+  constructor() { }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
+    this.jsPlumbInstance.repaintEverything();
   }
 
   ngOnDestroy(): void {
+    // callback
     this.onDeleteTask(this.id);
-    clearInterval(this.interval);
+    // delete jsPlumb connections and endpoint
+    this.listInputConnections.forEach((connection) => {
+      this.jsPlumbInstance.deleteConnection(connection);
+    });
+    this.listOutputConnections.forEach((connection) => {
+      this.jsPlumbInstance.deleteConnection(connection);
+    });
+    this.listInputPorts.forEach((portId) => {
+      this.jsPlumbInstance.deleteEndpoint(portId);
+    });
+    this.listOutputPorts.forEach((portId) => {
+      this.jsPlumbInstance.deleteEndpoint(portId);
+    });
+  }
+
+  public destroy() {
+    this.elViewRef.destroy();
   }
 
   public init() {
+    // set settings
     this.el.nativeElement.id = this.id;
     this.el.nativeElement.setAttribute('class', 'flow-editor-task');
-    this.el.nativeElement.innerText = this.config.name || 'task';
-
     this.title = this.config.name || 'task';
+
     // set position
     if (this.position && this.position.x && this.position.y) {
       if (this.position.type === 'mouse') {
@@ -59,14 +80,84 @@ export class UbixTaskComponent implements OnInit, OnDestroy {
     // add endpoint
     const countInput = this.config.consumes.length || 0;
     const countOutput = this.config.produces.length || 0;
-    AddEndpointInputPorts(this.id, PortOptions, countInput, this.jsPlumbInstance, this.id, '');
-    AddEndpointOutputPorts(this.id, PortOptions, countOutput, this.jsPlumbInstance, this.id, '');
-
-    this.jsPlumbInstance.repaintEverything();
+    const inputPorts = AddEndpointInputPorts(this.id, PortOptions, countInput, this.jsPlumbInstance, this.id, '');
+    const outputPorts = AddEndpointOutputPorts(this.id, PortOptions, countOutput, this.jsPlumbInstance, this.id, '');
+    // set list
+    if (inputPorts) {
+      inputPorts.forEach((port) => {
+        this.listInputPorts.push(port.id);
+      });
+    }
+    if (outputPorts) {
+      outputPorts.forEach((port) => {
+        this.listOutputPorts.push(port.id);
+      });
+    }
     // callback
     if (this.onCreateTask) {
       this.onCreateTask(this.el.nativeElement, this.position.x, this.position.y, this.config);
     }
+    // add bind to jsPlumb
+    this.addBindJsPlumb();
+  }
+
+  // JS PLUMB
+  private addBindJsPlumb(): void {
+    // add connection and set label connection
+    this.jsPlumbInstance.bind('connection', (info) => {
+      if (info.sourceId === this.id) {
+        this.listOutputConnections.push(info.connection);
+        // TODO: set label
+        info.connection.setLabel('name_out_' + this.config.name + '_table');
+      } else { if (info.targetId === this.id) {
+        this.listInputConnections.push(info.connection);
+      }
+      }
+    });
+    // delete connection
+    this.jsPlumbInstance.bind('connectionDetached', (info) => {
+      if (info.sourceId === this.id) {
+        this.listOutputConnections.forEach((connection, index) => {
+          if (connection.id === info.connection.id) {
+            delete this.listOutputConnections[index];
+          }
+        });
+      } else { if (info.targetId === this.id) {
+        this.listInputConnections.forEach((connection, index) => {
+          if (connection.id === info.connection.id) {
+            delete this.listInputConnections[index];
+          }
+        });
+      }
+      }
+    });
+    // delete connection
+    this.jsPlumbInstance.bind('connectionMoved', (info) => {
+      if (info.originalSourceId === this.id) {
+        this.listOutputConnections.forEach((connection, index) => {
+          if (connection.id === info.connection.id) {
+            delete this.listOutputConnections[index];
+          }
+        });
+      } else { if (info.originalTargetId === this.id) {
+        this.listInputConnections.forEach((connection, index) => {
+          if (connection.id === info.connection.id) {
+            delete this.listInputConnections[index];
+          }
+        });
+      }
+      }
+    });
+  }
+
+  // PROPERTY EDITOR
+  private callbackForEditProperty = (config: Task) => {
+    this.config = config;
+    // set label connections
+    this.listOutputConnections.forEach((connection) => {
+      // TODO: set label
+      connection.setLabel('');
+    });
   }
 
   @HostListener('mousedown', ['$event'])
@@ -74,6 +165,7 @@ export class UbixTaskComponent implements OnInit, OnDestroy {
     this.mouseStartPositionX = event.clientX;
     this.mouseStartPositionY = event.clientY;
     this.pressed = true;
+    // TODO: property editor
   }
 
   @HostListener('body:mousemove', ['$event'])
