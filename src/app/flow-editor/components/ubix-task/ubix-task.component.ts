@@ -6,6 +6,13 @@ import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from 
 import { Task } from '../../models/task.model';
 import { PortOptions } from '../../models/port-options.model';
 
+enum statusLoad {
+  Off,
+  On,
+  Ok,
+  Bad
+}
+
 @Component({
   selector: 'app-ubix-task',
   templateUrl: './ubix-task.component.html',
@@ -103,32 +110,40 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   private addBindJsPlumb(): void {
     // add connection and set label connection
     this.jsPlumbInstance.bind('connection', (info) => {
+      // Output
       if (info.sourceId === this.id) {
-        // TODO: set label = dsl table // add func to output connector
+        // TODO: set label = dsl table name
         info.connection.setLabel('name_out_' + this.config.name + '_table');
+        // set config
+        info.connection.setParameter('config', () => {
+          return this.config;
+        });
+      // Input
       } else { if (info.targetId === this.id) {
+        // get config
+        const inputConfig = info.connection.getParameter<() => Task>('config')();
         // TODO: set src table
       }
       }
     });
-    // delete connection
-    this.jsPlumbInstance.bind('connectionDetached', (info) => {
-      if (info.sourceId === this.id) {
-        // TODO: delete output connection
-      } else { if (info.targetId === this.id) {
-        // TODO: delete input connection
-      }
-      }
-    });
-    // delete connection
-    this.jsPlumbInstance.bind('connectionMoved', (info) => {
-      if (info.originalSourceId === this.id) {
-        // TODO: delete output connection
-      } else { if (info.originalTargetId === this.id) {
-        // TODO: delete input connection
-      }
-      }
-    });
+    // // delete connection
+    // this.jsPlumbInstance.bind('connectionDetached', (info) => {
+    //   if (info.sourceId === this.id) {
+    //     // TODO: delete output connection
+    //   } else { if (info.targetId === this.id) {
+    //     // TODO: delete input connection
+    //   }
+    //   }
+    // });
+    // // delete connection
+    // this.jsPlumbInstance.bind('connectionMoved', (info) => {
+    //   if (info.originalSourceId === this.id) {
+    //     // TODO: delete output connection
+    //   } else { if (info.originalTargetId === this.id) {
+    //     // TODO: delete input connection
+    //   }
+    //   }
+    // });
   }
 
   // PROPERTY EDITOR
