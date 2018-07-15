@@ -1,7 +1,9 @@
 import { Component, Input, HostListener, ElementRef, OnDestroy, ViewRef, AfterViewInit } from '@angular/core';
-import { Task } from '../../models/task.model';
-import {Connection, jsPlumbInstance, UUID} from 'jsplumb';
+
+import { jsPlumbInstance } from 'jsplumb';
+
 import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from '../../services/tools.service';
+import { Task } from '../../models/task.model';
 import { PortOptions } from '../../models/port-options.model';
 
 @Component({
@@ -24,10 +26,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   private mouseStartPositionX: number;
   private mouseStartPositionY: number;
   private pressed = false;
-  private listInputPorts: string[] = [];
-  private listOutputPorts: string[] = [];
-  private listInputConnections: Connection[] = [];
-  private listOutputConnections: Connection[] = [];
+  private listInputIdPorts: string[] = [];
+  private listOutputIdPorts: string[] = [];
   public title: string;
 
   constructor() { }
@@ -39,18 +39,16 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     // callback
     this.onDeleteTask(this.id);
-    // delete jsPlumb connections and endpoint
-    this.listInputConnections.forEach((connection) => {
-      this.jsPlumbInstance.deleteConnection(connection);
+    // delete jsPlumb connections and endpoints
+    this.listInputIdPorts.forEach((portId) => {
+      const endpoint =  this.jsPlumbInstance.getEndpoint(portId);
+      this.jsPlumbInstance.deleteConnection(endpoint.connectorSelector());
+      this.jsPlumbInstance.deleteEndpoint(endpoint);
     });
-    this.listOutputConnections.forEach((connection) => {
-      this.jsPlumbInstance.deleteConnection(connection);
-    });
-    this.listInputPorts.forEach((portId) => {
-      this.jsPlumbInstance.deleteEndpoint(portId);
-    });
-    this.listOutputPorts.forEach((portId) => {
-      this.jsPlumbInstance.deleteEndpoint(portId);
+    this.listOutputIdPorts.forEach((portId) => {
+      const endpoint =  this.jsPlumbInstance.getEndpoint(portId);
+      this.jsPlumbInstance.deleteConnection(endpoint.connectorSelector());
+      this.jsPlumbInstance.deleteEndpoint(endpoint);
     });
   }
 
@@ -85,12 +83,12 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     // set list
     if (inputPorts) {
       inputPorts.forEach((port) => {
-        this.listInputPorts.push(port.id);
+        this.listInputIdPorts.push(port.id);
       });
     }
     if (outputPorts) {
       outputPorts.forEach((port) => {
-        this.listOutputPorts.push(port.id);
+        this.listOutputIdPorts.push(port.id);
       });
     }
     // callback
@@ -106,45 +104,28 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     // add connection and set label connection
     this.jsPlumbInstance.bind('connection', (info) => {
       if (info.sourceId === this.id) {
-        this.listOutputConnections.push(info.connection);
-        // TODO: set label
+        // TODO: set label = dsl table // add func to output connector
         info.connection.setLabel('name_out_' + this.config.name + '_table');
       } else { if (info.targetId === this.id) {
-        this.listInputConnections.push(info.connection);
+        // TODO: set src table
       }
       }
     });
     // delete connection
     this.jsPlumbInstance.bind('connectionDetached', (info) => {
       if (info.sourceId === this.id) {
-        this.listOutputConnections.forEach((connection, index) => {
-          if (connection.id === info.connection.id) {
-            delete this.listOutputConnections[index];
-          }
-        });
+        // TODO: delete output connection
       } else { if (info.targetId === this.id) {
-        this.listInputConnections.forEach((connection, index) => {
-          if (connection.id === info.connection.id) {
-            delete this.listInputConnections[index];
-          }
-        });
+        // TODO: delete input connection
       }
       }
     });
     // delete connection
     this.jsPlumbInstance.bind('connectionMoved', (info) => {
       if (info.originalSourceId === this.id) {
-        this.listOutputConnections.forEach((connection, index) => {
-          if (connection.id === info.connection.id) {
-            delete this.listOutputConnections[index];
-          }
-        });
+        // TODO: delete output connection
       } else { if (info.originalTargetId === this.id) {
-        this.listInputConnections.forEach((connection, index) => {
-          if (connection.id === info.connection.id) {
-            delete this.listInputConnections[index];
-          }
-        });
+        // TODO: delete input connection
       }
       }
     });
@@ -154,9 +135,12 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   private callbackForEditProperty = (config: Task) => {
     this.config = config;
     // set label connections
-    this.listOutputConnections.forEach((connection) => {
-      // TODO: set label
-      connection.setLabel('');
+    this.listOutputIdPorts.forEach((portId) => {
+      const endpoint =  this.jsPlumbInstance.getEndpoint(portId);
+      if (endpoint.connectorSelector()) {
+        // TODO: set label
+        endpoint.connectorSelector().setLabel('test');
+      }
     });
   }
 
