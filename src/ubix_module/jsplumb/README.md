@@ -16,7 +16,7 @@ Issues reported for the Toolkit edition in this issue tracker will be cleared.
 ## Installation
 
 ```
-npm install jsplumb
+npm install jsplumb.model.ts
 ```
 
 We package the following files:
@@ -24,8 +24,8 @@ We package the following files:
 ```javascript
 "files": [
     "index.d.ts",
-    "dist/js/jsplumb.js",
-    "dist/js/jsplumb.min.js",
+    "dist/js/jsplumb.model.ts.js",
+    "dist/js/jsplumb.model.ts.min.js",
     "css/jsplumbtoolkit-defaults.css"
   ],
 ```
@@ -60,19 +60,19 @@ API documentation is in the apidoc folder of the project, and online [here](http
 
 - Bezier curve functions:
 
-[https://github.com/jsplumb/jsBezier](https://github.com/sporritt/jsBezier)
+[https://github.com/jsplumb.model.ts/jsBezier](https://github.com/sporritt/jsBezier)
 
 - Simple geometry functions:
 
-[https://github.com/jsplumb/biltong](https://github.com/jsplumb/biltong)
+[https://github.com/jsplumb.model.ts/biltong](https://github.com/jsplumb/biltong)
 
 - Drag+drop:
 
-[https://github.com/jsplumb/katavorio](https://github.com/jsplumb/katavorio)
+[https://github.com/jsplumb.model.ts/katavorio](https://github.com/jsplumb/katavorio)
 
 - Events:
 
-[https://github.com/jsplumb/mottle](https://github.com/jsplumb/mottle)
+[https://github.com/jsplumb.model.ts/mottle](https://github.com/jsplumb/mottle)
 
 ## Tests
 There is a full suite of unit tests checked in to the `test` and `dist/test` directories.
