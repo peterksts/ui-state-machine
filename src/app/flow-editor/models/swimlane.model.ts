@@ -1,4 +1,4 @@
-import { jsPlumbInstance } from 'jsplumb';
+import { jsPlumbInstance } from '../../../ubix_module/jsplumb';
 import { Store } from './store.model';
 import {AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement, ParseStylePxToNumber} from '../services/tools.service';
 import {PortOptions} from './port-options.model';

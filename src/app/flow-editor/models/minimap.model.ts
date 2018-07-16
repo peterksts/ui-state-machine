@@ -1,4 +1,4 @@
-import {Connection, Endpoint, jsPlumb, jsPlumbInstance} from 'jsplumb';
+import {Connection, Endpoint, jsPlumb, jsPlumbInstance} from '../../../ubix_module/jsplumb';
 
 import { AddEndpointInputPorts, AddEndpointOutputPorts } from '../services/tools.service';
 

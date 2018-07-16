@@ -1,2 +1,9 @@
-<p style="padding: 0px; margin: 0px">{{ title }}</p>
-<a href="#" (click)="destroy()" style="padding: 0px; margin: 0px">destroy</a>
+<div class="row p-0 m-0">
+  <div class="col-9">
+    <p style="padding: 0px; margin: 0px">{{ title }}</p>
+  </div>
+  <div class="col-3 mt-1">
+    <i class="fa fa-spin fa-spinner" aria-hidden="true" (click)="destroy()"
+       style="font-size: 22px; margin-left: 5px"></i>
+  </div>
+</div>

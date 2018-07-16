@@ -1,6 +1,7 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Tasks} from '../data/tasks.const';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Tasks } from '../data/tasks.const';
+import { Task } from '../models/task.model';
 
 @Injectable()
 export class DataSourceService {

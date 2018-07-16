@@ -1,4 +1,4 @@
-import { Endpoint, EndpointOptions, jsPlumbInstance } from 'jsplumb';
+import { Endpoint, EndpointOptions, jsPlumbInstance } from '../../../ubix_module/jsplumb';
 
 export const GetCenterElement = (el: HTMLElement): {x: number, y: number} => {
   const rect = el.getBoundingClientRect();

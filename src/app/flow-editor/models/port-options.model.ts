@@ -1,4 +1,4 @@
-import { EndpointOptions } from 'jsplumb';
+import { EndpointOptions } from '../../../ubix_module/jsplumb';
 
 export const PortOptions: EndpointOptions = {
   anchor: [],

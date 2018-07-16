@@ -8,7 +8,6 @@ import {
   ComponentFactoryResolver,
   Type
 } from '@angular/core';
-import {jsPlumb, jsPlumbInstance} from 'jsplumb';
 
 import { Store } from '../models/store.model';
 import { Minimap } from '../models/minimap.model';
@@ -16,6 +15,7 @@ import { DataSourceService } from '../services/data-source.service';
 import { Task } from '../models/task.model';
 import { UbixTaskComponent } from '../components/ubix-task/ubix-task.component';
 import {ComponentRef} from '@angular/core/src/linker/component_factory';
+import { jsPlumbInstance, jsPlumb } from '../../../ubix_module/jsplumb';
 
 @Directive({
   selector: '[app-flow-editor-directive]',
@@ -27,7 +27,7 @@ export class FlowEditorDirective implements OnInit {
   @Input() viewContainerRef: ViewContainerRef;
 
   private jsPlumbInstance: jsPlumbInstance;
-  private mapUbixTask: {[key: string]: ComponentRef<UbixTaskComponent>} = {};
+  private mapUbixTask: ComponentRef<UbixTaskComponent>[] = [];
 
   // private mapSwimLane: {[key: string]: Swimlane} = {};
   // private nameSwimlane = 'swimlane';
@@ -149,7 +149,7 @@ export class FlowEditorDirective implements OnInit {
     taskComponentRef.instance.el = taskComponentRef.location;
     taskComponentRef.instance.elViewRef = taskComponentRef.hostView;
     taskComponentRef.instance.init();
-    this.mapUbixTask[taskComponentRef.instance.id] = taskComponentRef;
+    this.mapUbixTask.push(taskComponentRef);
   }
 
   private deleteTask = (id: string) => {

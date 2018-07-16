@@ -1,17 +1,11 @@
 import { Component, Input, HostListener, ElementRef, OnDestroy, ViewRef, AfterViewInit } from '@angular/core';
 
-import { jsPlumbInstance } from 'jsplumb';
+import { jsPlumbInstance } from '../../../../ubix_module/jsplumb';
 
 import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from '../../services/tools.service';
 import { Task } from '../../models/task.model';
 import { PortOptions } from '../../models/port-options.model';
-
-enum statusLoad {
-  Off,
-  On,
-  Ok,
-  Bad
-}
+import { StatusLoad } from '../../models/status-load.model';
 
 @Component({
   selector: 'app-ubix-task',
@@ -35,6 +29,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   private pressed = false;
   private listInputIdPorts: string[] = [];
   private listOutputIdPorts: string[] = [];
+  private borderColor: string;
+  private isLoad = false;
   public title: string;
 
   constructor() { }
@@ -59,15 +55,16 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  public destroy() {
+  public destroy(): void {
     this.elViewRef.destroy();
   }
 
-  public init() {
+  public init(): void {
     // set settings
     this.el.nativeElement.id = this.id;
     this.el.nativeElement.setAttribute('class', 'flow-editor-task');
     this.title = this.config.name || 'task';
+    this.borderColor = this.el.nativeElement.style.borderColor;
 
     // set position
     if (this.position && this.position.x && this.position.y) {
@@ -104,6 +101,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     }
     // add bind to jsPlumb
     this.addBindJsPlumb();
+    // set status load
+    this.loadStatus(StatusLoad.Ok);
   }
 
   // JS PLUMB
@@ -121,42 +120,77 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
       // Input
       } else { if (info.targetId === this.id) {
         // get config
-        const inputConfig = info.connection.getParameter<() => Task>('config')();
+        const getInputConfig = info.connection.getParameter<() => Task>('config');
         // TODO: set src table
       }
       }
     });
-    // // delete connection
-    // this.jsPlumbInstance.bind('connectionDetached', (info) => {
-    //   if (info.sourceId === this.id) {
-    //     // TODO: delete output connection
-    //   } else { if (info.targetId === this.id) {
-    //     // TODO: delete input connection
-    //   }
-    //   }
-    // });
-    // // delete connection
-    // this.jsPlumbInstance.bind('connectionMoved', (info) => {
-    //   if (info.originalSourceId === this.id) {
-    //     // TODO: delete output connection
-    //   } else { if (info.originalTargetId === this.id) {
-    //     // TODO: delete input connection
-    //   }
-    //   }
-    // });
   }
 
   // PROPERTY EDITOR
-  private callbackForEditProperty = (config: Task) => {
+  private setConfig = (config: Task): void => {
     this.config = config;
     // set label connections
     this.listOutputIdPorts.forEach((portId) => {
-      const endpoint =  this.jsPlumbInstance.getEndpoint(portId);
+      const endpoint = this.jsPlumbInstance.getEndpoint(portId);
       if (endpoint.connectorSelector()) {
         // TODO: set label
         endpoint.connectorSelector().setLabel('test');
       }
     });
+  }
+
+  private setLoadStatus = (status: StatusLoad): void => {
+    this.loadStatus(status);
+  }
+
+  // LOAD
+  private loadStatus(status: StatusLoad): void {
+    switch (status) {
+      case StatusLoad.Off:
+        this.isLoad = false;
+        this.el.nativeElement.style.borderColor = 'yellow';
+        // set param out port
+        this.listOutputIdPorts.forEach((portId) => {
+          this.jsPlumbInstance.getEndpoint(portId).isSource = false;
+        });
+        break;
+      case StatusLoad.On: // only RGBA format
+        const color = 'rgba(255, 255, 0, '; // yellow color
+        let increment = 0.1;
+        let alpha = 1.0;
+        this.isLoad = true;
+        const flicker = () => {
+          if (!this.isLoad) {
+            return;
+          }
+          if (alpha > 0.2 && alpha < 1.0) {
+            alpha += increment;
+          } else { if (alpha <= 0.2) {
+            increment = 0.1;
+            alpha += increment;
+          } else { if (alpha >= 1.0) {
+            increment = -0.1;
+            alpha += increment;
+          }}}
+          this.el.nativeElement.style.borderColor = color + alpha + ')';
+          setTimeout(flicker, 50);
+        };
+        flicker();
+        break;
+      case StatusLoad.Ok:
+        this.isLoad = false;
+        this.el.nativeElement.style.borderColor = this.borderColor;
+        // set param out port
+        this.listOutputIdPorts.forEach((portId) => {
+          this.jsPlumbInstance.getEndpoint(portId).isSource = true;
+        });
+        break;
+      case StatusLoad.Bad:
+        this.isLoad = false;
+        this.el.nativeElement.style.borderColor = 'red';
+        break;
+    }
   }
 
   @HostListener('mousedown', ['$event'])
