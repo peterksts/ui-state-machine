@@ -1,14 +1,12 @@
-import {BrowserModule} from '@angular/platform-browser';
-import {NgModule} from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
 
-import {AppComponent} from './app.component';
+import { AppComponent } from './app.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import {ConnectionService} from './services/connection.service';
-import {StateService} from './services/state.service';
+import { ConnectionService } from './services/connection.service';
+import { StateService } from './services/state.service';
 import {routing} from './app.routing';
 import {HttpClientModule} from '@angular/common/http';
-
-import {BrutusinModule} from './forms/brutusin/brutusin.module';
 
 @NgModule({
   declarations: [
@@ -18,8 +16,7 @@ import {BrutusinModule} from './forms/brutusin/brutusin.module';
     BrowserModule,
     HttpClientModule,
     NgbModule.forRoot(),
-    routing,
-    BrutusinModule
+    routing
   ],
   providers: [
     ConnectionService,
@@ -27,5 +24,4 @@ import {BrutusinModule} from './forms/brutusin/brutusin.module';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-}
+export class AppModule { }
