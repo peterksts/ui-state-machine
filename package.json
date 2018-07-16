@@ -26,7 +26,7 @@
     "font-awesome": "^4.7.0",
     "ng-bootstrap": "^1.6.3",
     "rxjs": "^6.2.2",
-    "zone.js": "^0.8.26"
+    "zone.js": "^0.8.26",
     "brutusin-json-forms": "^0.0.0"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
     "protractor": "~5.3.0",
     "ts-node": "~5.0.1",
     "tslint": "~5.9.1",
-    "typescript": "~2.7.2"
+    "typescript": "~2.7.2",
     "jquery": "1.9.1",
     "popper.js": "^1.14.3"
   }

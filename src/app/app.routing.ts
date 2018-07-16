@@ -8,7 +8,6 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {path: 'Flow', loadChildren: './flow-editor/flow-editor.module#FlowEditorModule' },
-  {path: '**', redirectTo: '/Editor'}
 
 ];
 
