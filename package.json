@@ -25,19 +25,9 @@
     "core-js": "^2.5.4",
     "font-awesome": "^4.7.0",
     "ng-bootstrap": "^1.6.3",
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "rxjs": "^6.0.0",
-    "zone.js": "^0.8.26"
-=======
     "rxjs": "^6.2.2",
     "zone.js": "^0.8.26",
     "brutusin-json-forms": "^0.0.0"
->>>>>>> 328f9642ea9fb6a75cc2444715d839ccb4f06920
-=======
-    "rxjs": "^6.0.0",
-    "zone.js": "^0.8.26"
->>>>>>> parent of 328f964... Merge branch 'master' of https://github.com/peterksts/ui-state-machine
   },
   "devDependencies": {
     "@angular/compiler-cli": "^6.0.3",

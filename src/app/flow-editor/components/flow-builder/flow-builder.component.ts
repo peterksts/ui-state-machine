@@ -107,8 +107,13 @@ export class FlowBuilderComponent implements OnInit {
     });
   }
 
+  @HostListener('document:keydown.Backspace', ['$event'])
+  onKeyPress(event) {
+    console.log(event);
+  }
+
   @HostListener('mousedown', ['$event'])
-  onMouseUp(event) {
+  onMouseDown(event) {
     if (event.target !== this.el.nativeElement) {
       return;
     }
