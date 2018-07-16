@@ -8,17 +8,17 @@ import { routes } from './flow-editor.routing';
 import { DataSourceService } from './services/data-source.service';
 import { FlowEditorComponent } from './flow-editor.component';
 import { UbixTaskViewDirective } from './directives/ubix-task-view.directive';
-import { FlowEditorDirective } from './directives/flow-editor.directive';
 import { UbixMovableViewDirective } from './directives/movable-view.directive';
 import { UbixTaskComponent } from './components/ubix-task/ubix-task.component';
+import { FlowBuilderComponent } from './components/flow-builder/flow-builder.component';
 
 @NgModule({
   declarations: [
     FlowEditorComponent,
     UbixTaskViewDirective,
     UbixMovableViewDirective,
-    FlowEditorDirective,
     UbixTaskComponent,
+    FlowBuilderComponent,
   ],
   imports: [
     CommonModule,

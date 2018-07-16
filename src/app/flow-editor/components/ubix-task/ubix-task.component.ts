@@ -1,4 +1,4 @@
-import { Component, Input, HostListener, ElementRef, OnDestroy, ViewRef, AfterViewInit } from '@angular/core';
+import {Component, Input, HostListener, ElementRef, OnDestroy, ViewRef, AfterViewInit, ViewChild} from '@angular/core';
 
 import { jsPlumbInstance } from '../../../../ubix_module/jsplumb';
 
@@ -6,6 +6,7 @@ import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from 
 import { Task } from '../../models/task.model';
 import { PortOptions } from '../../models/port-options.model';
 import { StatusLoad } from '../../models/status-load.model';
+import {ComponentRef} from '@angular/core/src/linker/component_factory';
 
 @Component({
   selector: 'app-ubix-task',
@@ -23,6 +24,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   @Input() onDeleteTask: (id: string) => void;
   @Input() onMoveTask: (id: string, positionX: number, positionY: number) => void;
   @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, config: Task) => void;
+  @Input() onSelectedTask: (event: UbixTaskComponent) => void;
 
   private mouseStartPositionX: number;
   private mouseStartPositionY: number;
@@ -30,8 +32,14 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   private listInputIdPorts: string[] = [];
   private listOutputIdPorts: string[] = [];
   private borderColor: string;
-  private isLoad = false;
+  public isLoad = false;
   public title: string;
+
+  @ViewChild('iconTrash')
+  private iconTrash: ElementRef;
+
+  @ViewChild('iconLoad')
+  private iconLoad: ElementRef;
 
   constructor() { }
 
@@ -102,7 +110,18 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     // add bind to jsPlumb
     this.addBindJsPlumb();
     // set status load
-    this.loadStatus(StatusLoad.Ok);
+    this.loadStatus(StatusLoad.Off);
+    // select task
+    this.selectedTask();
+    this.onSelectedTask(this);
+  }
+
+  public selectedTask() {
+    this.el.nativeElement.classList.add('flow-editor-task-select');
+  }
+
+  public selectedTaskOff() {
+    this.el.nativeElement.classList.remove('flow-editor-task-select');
   }
 
   // JS PLUMB
@@ -111,8 +130,6 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.jsPlumbInstance.bind('connection', (info) => {
       // Output
       if (info.sourceId === this.id) {
-        // TODO: set label = dsl table name
-        info.connection.setLabel('name_out_' + this.config.name + '_table');
         // set config
         info.connection.setParameter('config', () => {
           return this.config;
@@ -121,7 +138,6 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
       } else { if (info.targetId === this.id) {
         // get config
         const getInputConfig = info.connection.getParameter<() => Task>('config');
-        // TODO: set src table
       }
       }
     });
@@ -134,8 +150,6 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.listOutputIdPorts.forEach((portId) => {
       const endpoint = this.jsPlumbInstance.getEndpoint(portId);
       if (endpoint.connectorSelector()) {
-        // TODO: set label
-        endpoint.connectorSelector().setLabel('test');
       }
     });
   }
@@ -149,38 +163,16 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     switch (status) {
       case StatusLoad.Off:
         this.isLoad = false;
-        this.el.nativeElement.style.borderColor = 'yellow';
         // set param out port
         this.listOutputIdPorts.forEach((portId) => {
           this.jsPlumbInstance.getEndpoint(portId).isSource = false;
         });
         break;
-      case StatusLoad.On: // only RGBA format
-        const color = 'rgba(255, 255, 0, '; // yellow color
-        let increment = 0.1;
-        let alpha = 1.0;
+      case StatusLoad.On:
         this.isLoad = true;
-        const flicker = () => {
-          if (!this.isLoad) {
-            return;
-          }
-          if (alpha > 0.2 && alpha < 1.0) {
-            alpha += increment;
-          } else { if (alpha <= 0.2) {
-            increment = 0.1;
-            alpha += increment;
-          } else { if (alpha >= 1.0) {
-            increment = -0.1;
-            alpha += increment;
-          }}}
-          this.el.nativeElement.style.borderColor = color + alpha + ')';
-          setTimeout(flicker, 50);
-        };
-        flicker();
         break;
       case StatusLoad.Ok:
         this.isLoad = false;
-        this.el.nativeElement.style.borderColor = this.borderColor;
         // set param out port
         this.listOutputIdPorts.forEach((portId) => {
           this.jsPlumbInstance.getEndpoint(portId).isSource = true;
@@ -188,7 +180,6 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
         break;
       case StatusLoad.Bad:
         this.isLoad = false;
-        this.el.nativeElement.style.borderColor = 'red';
         break;
     }
   }
@@ -199,6 +190,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.mouseStartPositionY = event.clientY;
     this.pressed = true;
     // TODO: property editor
+    this.selectedTask();
+    this.onSelectedTask(this);
   }
 
   @HostListener('body:mousemove', ['$event'])

@@ -27,11 +27,12 @@
   height: 100%;
 }
 
-.flow-editor {
+.flow-builder {
   position: relative;
   background: lightgray;
   height: 100%;
   overflow: scroll;
+  display: block;
 }
 
 .flow-editor-task {
@@ -49,11 +50,13 @@
   margin: 0px;
 }
 
-.fa-trash:hover {
-  color: red;
+.flow-editor-task-select {
+  -moz-box-shadow: 0 0 10px cadetblue;
+  -webkit-box-shadow: 0 0 10px cadetblue;
+  box-shadow: 0 0 10px cadetblue;
 }
 
-.flow-editor .minimap {
+.flow-builder .minimap {
   position: absolute;
   top: 20px;
   right: 20px;
@@ -64,7 +67,7 @@
   overflow: hidden;
 }
 
-.flow-editor .minimap .minimap-view {
+.flow-builder .minimap .minimap-view {
   border: 1px solid dodgerblue;
   background: rgba(221, 221, 221, 0.3);
   display: block;

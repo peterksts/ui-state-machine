@@ -18,18 +18,7 @@
       </ngb-accordion>
     </div>
     <div class="col-8">
-      <div app-flow-editor-directive
-           ubix-movable-view
-           [store]="store" [miniMap]="minimap" [viewContainerRef]="viewContainerRef"
-           id="flow-editor"
-           class="flow-editor">
-        <div id="flow-editor-area" style="position: absolute; width: 2000px; height: 2000px; z-index: -9999" #flowEditorArea></div>
-        <div id="minimap" class="minimap">
-          <div class="minimap-view" id="minimap-view" name="minimap-view"
-               style="top: 0px; left: 0px"
-               onselectstart="return false" onmousedown="return false"></div>
-        </div>
-      </div>
+      <app-flow-builder ubix-movable-view [store]="store"></app-flow-builder>
     </div>
     <div class="col-2">
       <div class="form-vertical">

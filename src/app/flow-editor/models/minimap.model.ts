@@ -1,4 +1,4 @@
-import {Connection, Endpoint, jsPlumb, jsPlumbInstance} from '../../../ubix_module/jsplumb';
+import { Connection, Endpoint, jsPlumb, jsPlumbInstance } from '../../../ubix_module/jsplumb';
 
 import { AddEndpointInputPorts, AddEndpointOutputPorts } from '../services/tools.service';
 
@@ -162,6 +162,7 @@ export class Minimap {
     newTaskEl.style.width = ((rectMiniMap.right - rectMiniMap.left) / 100 * sizePercentWidth) + 'px';
     newTaskEl.style.height = ((rectMiniMap.bottom - rectMiniMap.top) / 100 * sizePercentHeight) + 'px';
     newTaskEl.style.minHeight = 0 + 'px';
+    newTaskEl.style.minWidth = 0 + 'px';
     // set position
     newTaskEl.style.left = ((rectMiniMap.right - rectMiniMap.left) / 100 * positionPercentX) + 'px';
     newTaskEl.style.top = ((rectMiniMap.bottom - rectMiniMap.top) / 100 * positionPercentY) + 'px';
