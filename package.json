@@ -26,6 +26,7 @@
     "font-awesome": "^4.7.0",
     "ng-bootstrap": "^1.6.3",
     "rxjs": "^6.0.0",
+    "vega": "^4.1.0",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

@@ -1,19 +1,19 @@
 {
-  "_from": "jsplumb",
+  "_from": "jsplumb@^2.7.9",
   "_id": "jsplumb@2.7.9",
   "_inBundle": false,
   "_integrity": "sha512-yui28qfl9FA24cw2r+V7fuzBtl6z9lZGgnrTghxqgQcEI6AlM4Q61VhUJKZ2VAfONVuU0ZW6QQ12T71byQD9Ww==",
   "_location": "/jsplumb",
   "_phantomChildren": {},
   "_requested": {
-    "type": "tag",
+    "type": "range",
     "registry": true,
-    "raw": "jsplumb",
+    "raw": "jsplumb@^2.7.9",
     "name": "jsplumb",
     "escapedName": "jsplumb",
-    "rawSpec": "",
+    "rawSpec": "^2.7.9",
     "saveSpec": null,
-    "fetchSpec": "latest"
+    "fetchSpec": "^2.7.9"
   },
   "_requiredBy": [
     "#USER",
@@ -21,8 +21,8 @@
   ],
   "_resolved": "https://registry.npmjs.org/jsplumb/-/jsplumb-2.7.9.tgz",
   "_shasum": "8a419ca1bb0e8342eaf8eafcf0beeb1d0a7c8766",
-  "_spec": "jsplumb",
-  "_where": "/Users/peterkorotkiy/js/angular6/state-machine",
+  "_spec": "jsplumb@^2.7.9",
+  "_where": "/Users/sfuser/Documents/ui-state-machine",
   "author": {
     "name": "jsPlumb"
   },
