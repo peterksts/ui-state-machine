@@ -3,7 +3,11 @@
     <p style="padding: 0px; margin: 0px">{{ title }}</p>
   </div>
   <div class="col-3 mt-1">
-    <i class="fa fa-spin fa-spinner" aria-hidden="true" (click)="destroy()"
-       style="font-size: 22px; margin-left: 5px"></i>
+    <i class="fa fa-trash" [class.visibleOff]="isLoad"
+       aria-hidden="true" (click)="destroy()"
+       style="font-size: 22px; margin-left: 5px" #iconTrash></i>
+    <i class="fa fa-spin fa-spinner" [class.visibleOff]="!isLoad"
+       aria-hidden="true"
+       style="font-size: 22px; margin-left: 5px" #iconLoad></i>
   </div>
 </div>

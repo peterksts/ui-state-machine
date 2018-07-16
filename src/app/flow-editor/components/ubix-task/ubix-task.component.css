@@ -1,1 +1,9 @@
+.fa-trash:hover {
+  color: red;
+}
+
+.visibleOff {
+  display: none;
+  visibility: hidden;
+}
 

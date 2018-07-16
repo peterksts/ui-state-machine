@@ -1,44 +1,49 @@
 import {
-  Directive,
-  HostListener,
+  Component, ComponentFactoryResolver, ElementRef, HostListener,
   Input,
-  OnInit,
-  ElementRef,
-  ViewContainerRef,
-  ComponentFactoryResolver,
-  Type
+  OnInit, Type, ViewChild, ViewContainerRef
 } from '@angular/core';
 
-import { Store } from '../models/store.model';
-import { Minimap } from '../models/minimap.model';
-import { DataSourceService } from '../services/data-source.service';
-import { Task } from '../models/task.model';
-import { UbixTaskComponent } from '../components/ubix-task/ubix-task.component';
-import {ComponentRef} from '@angular/core/src/linker/component_factory';
-import { jsPlumbInstance, jsPlumb } from '../../../ubix_module/jsplumb';
+import { Store } from '../../models/store.model';
+import { Minimap } from '../../models/minimap.model';
+import { ComponentRef } from '@angular/core/src/linker/component_factory';
+import { jsPlumb, jsPlumbInstance } from '../../../../ubix_module/jsplumb';
+import { UbixTaskComponent } from '../ubix-task/ubix-task.component';
+import { Task } from '../../models/task.model';
+import { DataSourceService } from '../../services/data-source.service';
 
-@Directive({
-  selector: '[app-flow-editor-directive]',
+@Component({
+  selector: 'app-flow-builder',
+  templateUrl: './flow-builder.component.html',
+  styleUrls: ['./flow-builder.component.css']
 })
-export class FlowEditorDirective implements OnInit {
+export class FlowBuilderComponent implements OnInit {
 
   @Input() store: Store;
-  @Input() miniMap: Minimap;
-  @Input() viewContainerRef: ViewContainerRef;
 
+  private miniMap: Minimap;
   private jsPlumbInstance: jsPlumbInstance;
-  private mapUbixTask: ComponentRef<UbixTaskComponent>[] = [];
+  private listUbixTask: ComponentRef<UbixTaskComponent>[] = [];
+  private selectUbixTask: UbixTaskComponent[];
 
-  // private mapSwimLane: {[key: string]: Swimlane} = {};
-  // private nameSwimlane = 'swimlane';
-  // private listSwimLaneName: string[] = [];
+  @ViewChild('flowBuilderArea', { read: ViewContainerRef })
+  public viewContainerRef: ViewContainerRef;
 
-  constructor(private el: ElementRef,
-              private resolver: ComponentFactoryResolver,
+  // @ViewChild('flowBuilder')
+  // private el: ElementRef;
+
+  constructor(private resolver: ComponentFactoryResolver,
+              private el: ElementRef,
               private dataSource: DataSourceService) {
   }
 
   ngOnInit(): void {
+    // set settings
+    this.el.nativeElement.id = 'flow-builder';
+    this.el.nativeElement.setAttribute('class', 'flow-builder');
+    // init mini-map
+    this.miniMap = new Minimap('minimap', 'minimap-view');
+    // init jsPlumb
     this.jsPlumbInstance = jsPlumb.getInstance({
       DragOptions: {cursor: 'pointer', zIndex: 2000},
       ConnectionOverlays: [
@@ -83,6 +88,36 @@ export class FlowEditorDirective implements OnInit {
     this.jsPlumbInstance.bind('connectionMoved', (info) => {
       this.miniMap.deleteConnect(info.originalSourceEndpoint.id, info.originalTargetEndpoint.id);
     });
+    this.jsPlumbInstance.bind('connectionDrag', (info) => {
+      if (this.listUbixTask) {
+        let component: UbixTaskComponent;
+        this.listUbixTask.forEach((task) => {
+          task.instance.selectedTaskOff();
+          if (task.instance.id === info.sourceId) {
+            component = task.instance;
+            task.instance.selectedTask();
+          }
+        });
+        if (component) {
+          const list = [];
+          list.push(component);
+          this.selectUbixTask = list;
+        }
+      }
+    });
+  }
+
+  @HostListener('mousedown', ['$event'])
+  onMouseUp(event) {
+    if (event.target !== this.el.nativeElement) {
+      return;
+    }
+    if (this.selectUbixTask) {
+      this.selectUbixTask.forEach((task) => {
+        task.selectedTaskOff();
+      });
+      this.selectUbixTask = null;
+    }
   }
 
   @HostListener('dragover', ['$event'])
@@ -146,10 +181,11 @@ export class FlowEditorDirective implements OnInit {
     taskComponentRef.instance.onDeleteTask = this.deleteTask;
     taskComponentRef.instance.onMoveTask = this.moveTask;
     taskComponentRef.instance.onCreateTask = this.createTask;
+    taskComponentRef.instance.onSelectedTask = this.selectedTask;
     taskComponentRef.instance.el = taskComponentRef.location;
     taskComponentRef.instance.elViewRef = taskComponentRef.hostView;
     taskComponentRef.instance.init();
-    this.mapUbixTask.push(taskComponentRef);
+    this.listUbixTask.push(taskComponentRef);
   }
 
   private deleteTask = (id: string) => {
@@ -167,6 +203,20 @@ export class FlowEditorDirective implements OnInit {
       this.el.nativeElement.scrollWidth,
       this.el.nativeElement.scrollHeight,
       config);
+  }
+
+  private selectedTask = (event: UbixTaskComponent): void => {
+    if (this.selectUbixTask) {
+      if (this.selectUbixTask[this.selectUbixTask.length - 1].id === event.id) {
+        return;
+      }
+      this.selectUbixTask.forEach((task) => {
+        task.selectedTaskOff();
+      });
+    }
+    const list = [];
+    list.push(event);
+    this.selectUbixTask = list;
   }
 
   // TOOLS
