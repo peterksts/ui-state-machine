@@ -233,9 +233,17 @@ export class FlowBuilderComponent implements OnInit {
       if (this.selectUbixTask[this.selectUbixTask.length - 1].id === event.id) {
         return;
       }
+      // property editor
+      this.taskService.fireTaskChanged(event.getConfig());
+      // unselected task
       this.selectUbixTask.forEach((task) => {
         task.unselectedTask();
       });
+      // selected task
+      event.selectedTask();
+    } else {
+      // property editor
+      this.taskService.fireTaskChanged(event.getConfig());
     }
     const list = [];
     list.push(event);

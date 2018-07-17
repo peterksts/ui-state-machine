@@ -141,9 +141,6 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
 
   public selectedTask() {
     this.el.nativeElement.classList.add('flow-editor-task-select');
-
-    // property editor
-    this.taskService.fireTaskChanged(this.config);
   }
 
   public unselectedTask() {
@@ -173,6 +170,10 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   public setConfig(config: Task): void {
     this.config = config;
     this.loadStatus(this.config.statusLoad);
+  }
+
+  public getConfig(): Task {
+    return this.config;
   }
 
   // LOAD
