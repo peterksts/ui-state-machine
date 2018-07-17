@@ -1,15 +1,21 @@
 import { StatusLoad } from './status-load.model';
 
 class Task {
+  [propName: string]: any;
+
   public get title(): string {
     return this.template ? this.template.name : null;
+  }
+
+  public get schema(): any {
+    return this.template ? this.template.parameters.jsonSchema : null;
   }
 
   constructor(public template: ITaskTemplate,
               public id: String,
               public data: any,
-              public statusLoad: StatusLoad,
-  ) { }
+              public statusLoad: StatusLoad) {
+  }
 }
 
 interface ITaskTemplate {

@@ -23,7 +23,7 @@ export class FormRendererComponent implements OnInit {
 
   constructor(@Inject(BrutusinService) public brutusin: any, @Inject(TaskService) public taskService: TaskService) {
     this.hideForm(true);
-    taskService.subscribeOnTaskChanged(this.onTaskChanged);
+    taskService.subscribeOnTaskChanged(this.onTaskChanged.bind(this));
   }
 
   ngOnInit() {
@@ -38,17 +38,25 @@ export class FormRendererComponent implements OnInit {
     }
   }
 
+  private getFormElement(): HTMLElement {
+    return this.formElement ? this.formElement : this.defineFormContainer();
+  }
+
   private renderForm(schema: any, data: any) {
     this.form = this.brutusin.create(schema) as IBrutusinForm;
-    this.form.render(this.formElement, data);
+    this.form.render(this.getFormElement(), data);
   }
 
   private defineFormContainer() {
     this.formElement = document.getElementById('form') as HTMLElement;
+    return this.formElement;
   }
 
   private destroyForm() {
-    this.formElement.innerHTML = '';
+    const formElement = this.getFormElement();
+    if (formElement) {
+      formElement.innerHTML = '';
+    }
   }
 
   private hideForm(isHidden: Boolean) {
