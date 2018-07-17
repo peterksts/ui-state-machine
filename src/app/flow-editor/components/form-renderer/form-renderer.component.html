@@ -1,10 +1,10 @@
-<div class="form-vertical" id="form">
-  <h5>Property Editor</h5>
-  <div class="form-group">
-    <label for="field">Field</label>
-    <input id="field" class="form-control">
+<div class="form-vertical" [hidden]="false">
+  <h5>task</h5>
+  <div class="form-group" id="form">
+    <!--<label for="field">Field</label>-->
+    <!--<input id="field" class="form-control">-->
   </div>
-  <div class="btn btn-primary">
+  <div class="btn btn-primary" (click)=onSaveButtonClick($event)>
     Save
   </div>
 </div>

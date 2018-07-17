@@ -9,6 +9,9 @@ export class TaskService {
   private selectedTask = new Subject<any>();
   private selectedTask$ = this.selectedTask.asObservable();
 
+  private submitedTask = new Subject<any>();
+  private submitedTask$ = this.submitedTask.asObservable();
+
   constructor() {
   }
 
@@ -16,7 +19,15 @@ export class TaskService {
     this.selectedTask$.subscribe(observer);
   }
 
+  subscribeOnTaskSubmited(observer) {
+    this.submitedTask$.subscribe(observer);
+  }
+
   fireTaskChanged(task) {
     this.selectedTask.next(task);
+  }
+
+  fireTaskSubmited(data) {
+    this.submitedTask.next(data);
   }
 }
