@@ -1,8 +1,12 @@
 <div id="flow-builder-area"
      #flowBuilderArea></div>
-<!--TODO: delete mini-map !-->
-<div id="minimap" class="minimap">
-  <div class="minimap-view" id="minimap-view" name="minimap-view"
-       onselectstart="return false" onmousedown="return false">
+<div id="minimap" class="minimap"
+     #minimap>
+  <div ubix-movable-minimap-view
+       [getMinimapBoundingClientRect]="getMinimapBoundingClientRect"
+       [moveMinimapView]="moveMinimapView"
+       class="minimap-view" id="minimap-view" name="minimap-view"
+       onselectstart="return false" onmousedown="return false"
+       #minimapView>
   </div>
 </div>

@@ -56,17 +56,6 @@
   box-shadow: 0 0 10px cadetblue;
 }
 
-.flow-builder .minimap {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 100px;
-  height: 100px;
-  background: white;
-  z-index: 9990;
-  overflow: hidden;
-}
-
 .select-task {
   white-space: pre-line !important;
   text-align: left !important;

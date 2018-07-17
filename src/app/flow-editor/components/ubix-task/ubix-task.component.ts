@@ -28,7 +28,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   @Input() config: Task;
   @Input() position: { x: number, y: number, type: string };
   @Input() jsPlumbInstance: jsPlumbInstance;
-  @Input() onDeleteTask: (id: string) => void;
+  @Input() onDeleteTask: (event: UbixTaskComponent) => void;
   @Input() onMoveTask: (id: string, positionX: number, positionY: number) => void;
   @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, config: Task) => void;
   @Input() onSelectedTask: (event: UbixTaskComponent) => void;
@@ -36,10 +36,10 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   private mouseStartPositionX: number;
   private mouseStartPositionY: number;
   private pressed = false;
-  private listInputIdPorts: string[] = [];
-  private listOutputIdPorts: string[] = [];
   private borderColor: string;
-  private fieldsMemory: any;
+  private data: any;
+  public listInputIdPorts: string[] = [];
+  public listOutputIdPorts: string[] = [];
   public isLoad = false;
   public title: string;
 
@@ -69,7 +69,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     });
 
     // callback for flow-builder
-    this.onDeleteTask(this.id);
+    this.onDeleteTask(this);
   }
 
   public destroy(check?: boolean): void {
@@ -128,7 +128,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     // add bind to jsPlumb
     this.addBindJsPlumb();
     // set status load
-    this.loadStatus(StatusLoad.Off);
+    this.loadStatus(StatusLoad.Ok);
     // select task
     this.selectedTask();
     this.onSelectedTask(this);
@@ -162,8 +162,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   }
 
   // PROPERTY EDITOR
-  private setFields = (fields: any): void => {
-    this.fieldsMemory = fields;
+  private setFields = (data: any): void => {
+    this.data = data;
   }
 
   private setLoadStatus = (status: StatusLoad): void => {
