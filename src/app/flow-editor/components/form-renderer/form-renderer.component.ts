@@ -1,5 +1,6 @@
-import {Component, Inject, Input, OnInit} from '@angular/core';
-import {BrutusinService} from '../../services/brutusin.service';
+import { Component, Inject, Input, OnInit } from '@angular/core';
+import { BrutusinService } from '../../services/brutusin.service';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-form-renderer',
@@ -12,21 +13,26 @@ export class FormRendererComponent implements OnInit {
   @Input() schema: any;
   @Input() data: any;
 
-  private _brutusin: any;
+  private formElement: HTMLElement;
 
-  constructor(@Inject(BrutusinService) public brutusin: any) {
-    // console.log(['Brutusin', brutusin]);
-    // this._brutusin = brutusin;
+  constructor(@Inject(BrutusinService) public brutusin: any, @Inject(TaskService) public taskService: TaskService) {
+    taskService.subscribeOnTaskChanged((t) => {
+      console.log(['form-renderer: task has been changed', t]);
+    });
   }
 
   ngOnInit() {
+    this.defineFormContainer();
     this.create();
   }
 
   create() {
     const bf = this.brutusin.create(this.schema);
-    const container = document.getElementById('form');
-    bf.render(container, this.data);
+    bf.render(this.formElement, this.data);
+  }
+
+  private defineFormContainer() {
+    this.formElement = document.getElementById('form') as HTMLElement;
   }
 
 }
