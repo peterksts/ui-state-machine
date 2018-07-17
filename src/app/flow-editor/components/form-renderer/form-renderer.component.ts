@@ -2,6 +2,7 @@ import { Component, Inject, Input, OnInit } from '@angular/core';
 import { BrutusinService } from '../../services/brutusin.service';
 import { TaskService } from '../../services/task.service';
 import { IBrutusinForm } from '../../models/binding.interfaces';
+import { Task } from '../../models/task.model';
 
 @Component({
   selector: 'app-form-renderer',
@@ -16,16 +17,15 @@ export class FormRendererComponent implements OnInit {
   @Input() formHidden: Boolean;
 
   private formElement: HTMLElement;
-  private form: IBrutusinForm; // render, validate, getData, getRenderingContainer
+  private form: IBrutusinForm;
 
   public task: any;
 
   constructor(@Inject(BrutusinService) public brutusin: any, @Inject(TaskService) public taskService: TaskService) {
     this.hideForm(true);
 
-    taskService.subscribeOnTaskChanged((t) => {
-      this.task = t;
-      console.log(['form-renderer: task has been changed', t]);
+    taskService.subscribeOnTaskChanged((_task: Task) => {
+      this.task = _task;
     });
   }
 
@@ -35,11 +35,9 @@ export class FormRendererComponent implements OnInit {
   }
 
   public onSaveButtonClick() {
-    if (this.form && this.form.validate()) {
-      this.taskService.fireTaskSubmitted({
-        task: this.task,
-        data: this.form.getData()
-      });
+    if (this.form && this.form.validate() && this.task) {
+      this.task.data = this.form.getData();
+      this.taskService.fireTaskSubmitted(this.task);
     }
   }
 
