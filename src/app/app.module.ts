@@ -7,6 +7,7 @@ import { ConnectionService } from './services/connection.service';
 import { StateService } from './services/state.service';
 import {routing} from './app.routing';
 import {HttpClientModule} from '@angular/common/http';
+import { TaskService } from './flow-editor/services/task.service';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import {HttpClientModule} from '@angular/common/http';
   providers: [
     ConnectionService,
     StateService,
+    TaskService
   ],
   bootstrap: [AppComponent]
 })
