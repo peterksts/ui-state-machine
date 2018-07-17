@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+
 import { Task } from './models/task.model';
-import { Minimap } from './models/minimap.model';
-import { DataSourceService } from './services/data-source.service';
 import { Store } from './models/store.model';
+import { DataSourceService } from './services/data-source.service';
 
 @Component({
   selector: 'app-flow-editor',

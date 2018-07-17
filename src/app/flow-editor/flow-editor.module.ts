@@ -11,6 +11,7 @@ import { UbixTaskViewDirective } from './directives/ubix-task-view.directive';
 import { UbixMovableViewDirective } from './directives/movable-view.directive';
 import { UbixTaskComponent } from './components/ubix-task/ubix-task.component';
 import { FlowBuilderComponent } from './components/flow-builder/flow-builder.component';
+import { MinimapComponent } from './components/mini-map/minimap.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { FlowBuilderComponent } from './components/flow-builder/flow-builder.com
     UbixMovableViewDirective,
     UbixTaskComponent,
     FlowBuilderComponent,
+    MinimapComponent,
   ],
   imports: [
     CommonModule,

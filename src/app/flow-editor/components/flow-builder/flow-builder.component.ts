@@ -4,10 +4,12 @@ import {
   OnInit, Type, ViewChild, ViewContainerRef
 } from '@angular/core';
 
+import { jsPlumb, jsPlumbInstance } from '../../../../ubix_module/jsplumb';
+import { jsPlumbConfig } from './jsplumb-config.model';
+
 import { Store } from '../../models/store.model';
 import { Minimap } from '../../models/minimap.model';
 import { ComponentRef } from '@angular/core/src/linker/component_factory';
-import { jsPlumb, jsPlumbInstance } from '../../../../ubix_module/jsplumb';
 import { UbixTaskComponent } from '../ubix-task/ubix-task.component';
 import { Task } from '../../models/task.model';
 import { DataSourceService } from '../../services/data-source.service';
@@ -29,41 +31,28 @@ export class FlowBuilderComponent implements OnInit {
   @ViewChild('flowBuilderArea', { read: ViewContainerRef })
   public viewContainerRef: ViewContainerRef;
 
-  // @ViewChild('flowBuilder')
-  // private el: ElementRef;
-
   constructor(private resolver: ComponentFactoryResolver,
               private el: ElementRef,
               private dataSource: DataSourceService) {
   }
 
   ngOnInit(): void {
-    // set settings
+    // set defaults settings
     this.el.nativeElement.id = 'flow-builder';
     this.el.nativeElement.setAttribute('class', 'flow-builder');
+
+    // JS-PLUMB
+    // set defaults config jsPlumb
+    const plumbConfig = jsPlumbConfig;
+    plumbConfig.Container = this.el.nativeElement.id; // set container
+    this.jsPlumbInstance = jsPlumb.getInstance(plumbConfig);
+
+    // jsPlumbInstance add bind
+    this.addBindJsPlumb();
+
+    // MINI-MAP
     // init mini-map
     this.miniMap = new Minimap('minimap', 'minimap-view');
-    // init jsPlumb
-    this.jsPlumbInstance = jsPlumb.getInstance({
-      DragOptions: {cursor: 'pointer', zIndex: 2000},
-      ConnectionOverlays: [
-        ['Arrow', {
-          location: 1,
-          visible: true,
-          width: 11,
-          length: 11,
-          id: 'ARROW',
-          events: {}
-        }],
-        ['Label', {
-          location: 0.1,
-          id: 'label',
-          cssClass: 'aLabel',
-          events: {}
-        }]
-      ],
-      Container: this.el.nativeElement.id
-    });
 
     // mini-map scrolling to flow-editor-map
     this.miniMap.setEventListenerMiniMapView((percentPosition: { percentX: number, percentY: number }) => {
@@ -72,9 +61,6 @@ export class FlowBuilderComponent implements OnInit {
 
     // set size mini-map view
     this.resizeMiniMapView();
-
-    // jsPlumbInstance add bind
-    this.addBindJsPlumb();
   }
 
   // JS PLUMB
@@ -108,7 +94,7 @@ export class FlowBuilderComponent implements OnInit {
   }
 
   @HostListener('mousedown', ['$event'])
-  onMouseDown(event) {
+  mouseDown(event) {
     if (event.target !== this.el.nativeElement) {
       return;
     }
@@ -121,7 +107,7 @@ export class FlowBuilderComponent implements OnInit {
   }
 
   @HostListener('dragover', ['$event'])
-  onDragOver(event) {
+  dragOver(event) {
     if (!this.store || this.store.type !== 'new_ubix_task') {
       return;
     }
@@ -130,17 +116,17 @@ export class FlowBuilderComponent implements OnInit {
   }
 
   @HostListener('drop', ['$event'])
-  onDrop(event) {
+  drop(event) {
     if (!this.store || this.store.type !== 'new_ubix_task') {
       return;
     }
-    const position = this.getPositionMouse(event);
+    const position = this.getMousePosition(event);
     event.preventDefault();
     this.createNewTask(this.store.data, {x: position.x, y: position.y, type: 'mouse'});
   }
 
   @HostListener('scroll', ['$event'])
-  onScroll(event) {
+  scroll(event) {
     this.miniMap.shift(event.target.scrollLeft,
       event.target.scrollTop,
       this.el.nativeElement.scrollWidth,
@@ -148,7 +134,7 @@ export class FlowBuilderComponent implements OnInit {
   }
 
   @HostListener('window:resize')
-  onWindowResize() {
+  windowResize() {
     this.resizeMiniMapView();
   }
 
@@ -165,7 +151,7 @@ export class FlowBuilderComponent implements OnInit {
     this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
   }
 
-  // CREATE TASK
+  // TASK
   // createNewTask and add in mapUbixTask new task
   private createNewTask(config: any, pos?: any) {
     const newTaskId = 'task-' + new Date().getTime();
@@ -189,6 +175,14 @@ export class FlowBuilderComponent implements OnInit {
   }
 
   private deleteTask = (id: string) => {
+    if (this.listUbixTask) {
+      this.listUbixTask.forEach((task, index) => {
+        if (task.instance.id === id) {
+          delete this.listUbixTask[index];
+        }
+      });
+    }
+    // TODO: delete task in mini-map
   }
 
   private moveTask = (id: string, positionX: number, positionY: number) => {
@@ -220,7 +214,7 @@ export class FlowBuilderComponent implements OnInit {
   }
 
   // TOOLS
-  private getPositionMouse(event): { x: number, y: number } {
+  private getMousePosition(event): { x: number, y: number } {
     const posMouseX = event.offsetX === undefined ? event.layerX : event.offsetX;
     const posMouseY = event.offsetY === undefined ? event.layerY : event.offsetY;
     const posScrollLeft = event.target.scrollLeft;

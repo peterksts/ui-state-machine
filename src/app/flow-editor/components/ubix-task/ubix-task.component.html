@@ -1,13 +1,16 @@
 <div class="row p-0 m-0">
-  <div class="col-9">
-    <p style="padding: 0px; margin: 0px">{{ title }}</p>
+  <div class="col-9 container_ubix_task">
+    <p onselectstart="return false" onmousedown="return false">
+      {{ title }}</p>
   </div>
   <div class="col-3 mt-1">
-    <i class="fa fa-trash" [class.visibleOff]="isLoad"
+    <i class="fa fa-trash icon"
+       [class.visible_off]="isLoad"
        aria-hidden="true" (click)="destroy(true)"
-       style="font-size: 22px; margin-left: 5px" #iconTrash></i>
-    <i class="fa fa-spin fa-spinner" [class.visibleOff]="!isLoad"
+       #iconTrash></i>
+    <i class="fa fa-spin fa-spinner icon"
+       [class.visible_off]="!isLoad"
        aria-hidden="true"
-       style="font-size: 22px; margin-left: 5px" #iconLoad></i>
+       #iconLoad></i>
   </div>
 </div>

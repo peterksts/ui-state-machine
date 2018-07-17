@@ -67,22 +67,9 @@
   overflow: hidden;
 }
 
-.flow-builder .minimap .minimap-view {
-  border: 1px solid dodgerblue;
-  background: rgba(221, 221, 221, 0.3);
-  display: block;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 30px;
-  height: 40px;
-  z-index: 9991;
-  cursor: move;
-}
-
 .select-task {
   white-space: pre-line !important;
-  text-align: left!important;
+  text-align: left !important;
 }
 
 .select-task:hover {
@@ -95,6 +82,7 @@
 .endpoint {
 }
 
+/*TODO: test swimlane*/
 .swimlane {
   position: relative;
   overflow: hidden;

@@ -1,4 +1,4 @@
-import {Directive, ElementRef, HostListener, Renderer2} from '@angular/core';
+import { Directive, ElementRef, HostListener } from '@angular/core';
 
 @Directive({
   selector: '[ubix-movable-view]'
@@ -8,8 +8,8 @@ export class UbixMovableViewDirective {
   private pressed = false;
   private startPositionMouse: { x: number, y: number };
 
-  constructor(private el: ElementRef,
-              private renderer: Renderer2) {
+  constructor(private el: ElementRef
+  ) {
   }
 
   private moveView(e) {

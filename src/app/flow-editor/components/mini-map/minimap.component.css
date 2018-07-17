@@ -1,0 +1,12 @@
+.minimap-view {
+  top: 0px;
+  left: 0px;
+  border: 1px solid dodgerblue;
+  background: rgba(221, 221, 221, 0.3);
+  display: block;
+  position: absolute;
+  width: 30px;
+  height: 40px;
+  z-index: 9991;
+  cursor: move;
+}
