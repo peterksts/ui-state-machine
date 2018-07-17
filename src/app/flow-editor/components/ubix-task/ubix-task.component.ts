@@ -108,8 +108,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.el.nativeElement.style.top = this.position.y + 'px';
 
     // add endpoint
-    const countInput = this.taskTemplate.consumes.length || 0;
-    const countOutput = this.taskTemplate.produces.length || 0;
+    const countInput = this.taskTemplate.consumes ? this.taskTemplate.consumes.length : 0;
+    const countOutput = this.taskTemplate.produces ? this.taskTemplate.produces.length : 0;
     const inputPorts = AddEndpointInputPorts(this.id, PortOptions, countInput, this.jsPlumbInstance, this.id, '');
     const outputPorts = AddEndpointOutputPorts(this.id, PortOptions, countOutput, this.jsPlumbInstance, this.id, '');
     // set list port

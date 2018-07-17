@@ -336,8 +336,8 @@ export class FlowBuilderComponent implements OnInit {
       isTarget: false,
       connector: 'Straight',
     };
-    const countInput = taskTemplate.consumes.length || 0;
-    const countOutput = taskTemplate.produces.length || 0;
+    const countInput = taskTemplate.consumes ? taskTemplate.consumes.length : 0;
+    const countOutput = taskTemplate.produces ? taskTemplate.produces.length : 0;
     AddEndpointInputPorts(newTaskEl.id, portOptions, countInput, this.jsPlumbInstanceMinimap, taskEl.id, '');
     AddEndpointOutputPorts(newTaskEl.id, portOptions, countOutput, this.jsPlumbInstanceMinimap, taskEl.id, '');
   }
