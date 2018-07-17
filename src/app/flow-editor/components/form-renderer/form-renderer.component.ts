@@ -43,8 +43,14 @@ export class FormRendererComponent implements OnInit {
   }
 
   private renderForm(schema: any, data: any) {
+    if (!schema) {
+      return;
+    }
+
     this.form = this.brutusin.create(schema) as IBrutusinForm;
-    this.form.render(this.getFormElement(), data);
+    const formEl = this.getFormElement();
+    console.log(['renderForm', formEl, data]);
+    this.form.render(formEl, data);
   }
 
   private defineFormContainer() {
@@ -66,7 +72,7 @@ export class FormRendererComponent implements OnInit {
   private onTaskChanged(task: Task) {
     this.task = task;
     this.destroyForm();
-    if (this.task) {
+    if (this.task && this.task.schema) {
       this.renderForm(this.task.schema, this.task.data);
       this.hideForm(false);
     } else {
