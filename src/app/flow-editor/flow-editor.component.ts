@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Task } from './models/task.model';
+import { ITaskTemplate, Task } from './models/task.model';
 import { Store } from './models/store.model';
 import { DataSourceService } from './services/data-source.service';
 
@@ -18,7 +18,7 @@ export class FlowEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dataSource.getTasksLibrary().then((res: Task[]) => {
+    this.dataSource.getTasksLibrary().then((res: ITaskTemplate[]) => {
       // this.dataSource.getTasks().then((res: Task[]) => {
       this.tasksLibrary = res;
     });
