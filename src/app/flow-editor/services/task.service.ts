@@ -19,7 +19,7 @@ export class TaskService {
     this.selectedTask$.subscribe(observer);
   }
 
-  subscribeOnTaskSubmited(observer) {
+  subscribeOnTaskSubmitted(observer) {
     this.submitedTask$.subscribe(observer);
   }
 
@@ -27,7 +27,7 @@ export class TaskService {
     this.selectedTask.next(task);
   }
 
-  fireTaskSubmited(data) {
+  fireTaskSubmitted(data) {
     this.submitedTask.next(data);
   }
 }

@@ -32,7 +32,7 @@ export class FormRendererComponent implements OnInit {
 
   public onSaveButtonClick() {
     if (this.form && this.form.validate()) {
-      this.taskService.fireTaskSubmited({
+      this.taskService.fireTaskSubmitted({
         task: this.task,
         data: this.form.getData()
       });
