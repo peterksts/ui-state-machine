@@ -19,7 +19,7 @@ export class FormRendererComponent implements OnInit {
   private formElement: HTMLElement;
   private form: IBrutusinForm;
 
-  public task: any;
+  public task: Task;
 
   constructor(@Inject(BrutusinService) public brutusin: any, @Inject(TaskService) public taskService: TaskService) {
     this.hideForm(true);
