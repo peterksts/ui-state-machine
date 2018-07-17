@@ -7,9 +7,7 @@ export const routes: Routes = [
     redirectTo: 'Editor',
     pathMatch: 'full'
   },
-  {path: 'Flow', loadChildren: './flow-editor/flow-editor.module#FlowEditorModule' },
-  {path: '**', redirectTo: '/Editor'}
-
+  {path: 'Flow', loadChildren: './flow-editor/flow-editor.module#FlowEditorModule' }
 ];
 
 export const routing: ModuleWithProviders = RouterModule.forRoot(routes, {

@@ -5,6 +5,8 @@ declare module jsPlumb {
         stroke?: string;
         fill?: string;
         strokeWidth?: number;
+        // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        radius?: number;
     }
 
     module jsPlumb {
@@ -238,6 +240,7 @@ declare module jsPlumb {
         newSourceEndpoint: Endpoint;
         targetEndpoint: Endpoint;//- the targetEndpoint in the Connection
         newTargetEndpoint: Endpoint;
+        // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         originalSourceEndpoint: Endpoint;
         originalTargetEndpoint: Endpoint;
     }
@@ -301,6 +304,8 @@ declare module jsPlumb {
         id: ConnectionId;
         setDetachable(detachable: boolean): void;
         setParameter(name: string, value: any): void;
+        // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        getParameter<T>(name: string): T;
         endpoints: [Endpoint, Endpoint];
         getOverlay(s: string): Overlay;
         showOverlay(s: string): void;
@@ -355,6 +360,8 @@ declare module jsPlumb {
         scope: string;
         reattachConnections: boolean;
         type: string; // "Dot", etc.
+        // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        uuid?: string;
     }
 
     class Endpoint {
@@ -364,6 +371,9 @@ declare module jsPlumb {
         id: string;
         scope: string;
         type: EndpointId;
+        // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        isSource: boolean;
+        isTarget: boolean;
 
         setEndpoint(spec: EndpointSpec): void;
 
@@ -428,8 +438,8 @@ declare module jsPlumb {
         "TopLeft" |
         "TopRight";
 
-
-    type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | number[];
+    // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    type AnchorSpec = AnchorId | [AnchorId, AnchorOptions] | number[]
 
 
     /* --------------------------------------- OVERLAYS ------------------------------------------------------------- */

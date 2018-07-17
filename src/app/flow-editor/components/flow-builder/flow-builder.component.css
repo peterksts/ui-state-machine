@@ -1,0 +1,11 @@
+#flow-builder-area {
+  position: absolute;
+  width: 2000px;
+  height: 2000px;
+  z-index: -9999;
+}
+
+#minimap-view {
+  top: 0px;
+  left: 0px
+}

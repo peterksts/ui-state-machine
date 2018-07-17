@@ -32,6 +32,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   private listInputIdPorts: string[] = [];
   private listOutputIdPorts: string[] = [];
   private borderColor: string;
+  private fieldsMemory: any;
   public isLoad = false;
   public title: string;
 
@@ -63,8 +64,14 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  public destroy(): void {
-    this.elViewRef.destroy();
+  public destroy(check?: boolean): void {
+    let deleteStatus = true;
+    if (check) {
+      deleteStatus = confirm('delete task?');
+    }
+    if (deleteStatus) {
+      this.elViewRef.destroy();
+    }
   }
 
   public init(): void {
@@ -144,14 +151,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   }
 
   // PROPERTY EDITOR
-  private setConfig = (config: Task): void => {
-    this.config = config;
-    // set label connections
-    this.listOutputIdPorts.forEach((portId) => {
-      const endpoint = this.jsPlumbInstance.getEndpoint(portId);
-      if (endpoint.connectorSelector()) {
-      }
-    });
+  private setFields = (fields: any): void => {
+    this.fieldsMemory = fields;
   }
 
   private setLoadStatus = (status: StatusLoad): void => {

@@ -4,7 +4,7 @@
   </div>
   <div class="col-3 mt-1">
     <i class="fa fa-trash" [class.visibleOff]="isLoad"
-       aria-hidden="true" (click)="destroy()"
+       aria-hidden="true" (click)="destroy(true)"
        style="font-size: 22px; margin-left: 5px" #iconTrash></i>
     <i class="fa fa-spin fa-spinner" [class.visibleOff]="!isLoad"
        aria-hidden="true"
