@@ -11,9 +11,10 @@ import { Component,
 import { jsPlumbInstance } from '../../../../ubix_module/jsplumb';
 
 import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from '../../services/tools.service';
-import { Task } from '../../models/task.model';
+import { ITaskTemplate, Task } from '../../models/task.model';
 import { PortOptions } from '../../models/port-options.model';
 import { StatusLoad } from '../../models/status-load.model';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-ubix-task',
@@ -25,19 +26,19 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   @Input() id: string;
   @Input() el: ElementRef;
   @Input() elViewRef: ViewRef;
-  @Input() config: Task;
+  @Input() taskTemplate: ITaskTemplate;
   @Input() position: { x: number, y: number, type: string };
   @Input() jsPlumbInstance: jsPlumbInstance;
   @Input() onDeleteTask: (event: UbixTaskComponent) => void;
   @Input() onMoveTask: (id: string, positionX: number, positionY: number) => void;
-  @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, config: Task) => void;
+  @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, taskTemplate: ITaskTemplate) => void;
   @Input() onSelectedTask: (event: UbixTaskComponent) => void;
 
   private mouseStartPositionX: number;
   private mouseStartPositionY: number;
   private pressed = false;
   private borderColor: string;
-  private data: any;
+  private config: Task;
   public listInputIdPorts: string[] = [];
   public listOutputIdPorts: string[] = [];
   public isLoad = false;
@@ -49,7 +50,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   @ViewChild('iconLoad')
   private iconLoad: ElementRef;
 
-  constructor() { }
+  constructor(private taskService: TaskService,
+  ) { }
 
   ngAfterViewInit(): void {
     this.jsPlumbInstance.repaintEverything();
@@ -88,7 +90,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.el.nativeElement.setAttribute('class', 'flow-editor-task');
     this.el.nativeElement.setAttribute('onselectstart', 'return false');
     this.el.nativeElement.setAttribute('onmousedown', 'return false');
-    this.title = this.config.name || 'task';
+    this.title = this.taskTemplate.name || 'task';
     this.borderColor = this.el.nativeElement.style.borderColor;
 
     // set position
@@ -106,8 +108,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.el.nativeElement.style.top = this.position.y + 'px';
 
     // add endpoint
-    const countInput = this.config.consumes.length || 0;
-    const countOutput = this.config.produces.length || 0;
+    const countInput = this.taskTemplate.consumes.length || 0;
+    const countOutput = this.taskTemplate.produces.length || 0;
     const inputPorts = AddEndpointInputPorts(this.id, PortOptions, countInput, this.jsPlumbInstance, this.id, '');
     const outputPorts = AddEndpointOutputPorts(this.id, PortOptions, countOutput, this.jsPlumbInstance, this.id, '');
     // set list port
@@ -122,13 +124,16 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
       });
     }
 
+    // set config
+    this.config = new Task(this.taskTemplate, this.id, {}, StatusLoad.Off);
+
     // callback for flow-builder
-    this.onCreateTask(this.el.nativeElement, this.position.x, this.position.y, this.config);
+    this.onCreateTask(this.el.nativeElement, this.position.x, this.position.y, this.taskTemplate);
 
     // add bind to jsPlumb
     this.addBindJsPlumb();
     // set status load
-    this.loadStatus(StatusLoad.Ok);
+    this.loadStatus(StatusLoad.Off);
     // select task
     this.selectedTask();
     this.onSelectedTask(this);
@@ -136,9 +141,12 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
 
   public selectedTask() {
     this.el.nativeElement.classList.add('flow-editor-task-select');
+
+    // property editor
+    this.taskService.fireTaskChanged(this.config);
   }
 
-  public selectedTaskOff() {
+  public unselectedTask() {
     this.el.nativeElement.classList.remove('flow-editor-task-select');
   }
 
@@ -148,26 +156,23 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.jsPlumbInstance.bind('connection', (info) => {
       // Output
       if (info.sourceId === this.id) {
-        // set config
-        info.connection.setParameter('config', () => {
-          return this.config;
+        // set taskTemplate
+        info.connection.setParameter('taskTemplate', () => {
+          return this.taskTemplate;
         });
       // Input
       } else { if (info.targetId === this.id) {
-        // get config
-        const getInputConfig = info.connection.getParameter<() => Task>('config');
+        // get taskTemplate
+        const getInputConfig = info.connection.getParameter<() => Task>('taskTemplate');
       }
       }
     });
   }
 
   // PROPERTY EDITOR
-  private setFields = (data: any): void => {
-    this.data = data;
-  }
-
-  private setLoadStatus = (status: StatusLoad): void => {
-    this.loadStatus(status);
+  public setConfig(config: Task): void {
+    this.config = config;
+    this.loadStatus(this.config.statusLoad);
   }
 
   // LOAD
@@ -202,7 +207,6 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.mouseStartPositionY = event.clientY;
     this.pressed = true;
 
-    // TODO: property editor
     // select
     this.selectedTask();
 

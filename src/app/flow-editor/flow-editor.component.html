@@ -7,11 +7,11 @@
           <ng-template ngbPanelContent>
             <div ubix-task-view
                  draggable="true"
-                 (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: task})"
+                 (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: taskTemplate})"
                  (dragend)="store.setStore({type: null, event: null, data: null})"
                  class="btn btn-outline-warning select-task"
-                 *ngFor="let task of cat.tasks">
-              {{task.name}}
+                 *ngFor="let taskTemplate of cat.tasks">
+              {{taskTemplate.name}}
             </div>
           </ng-template>
         </ngb-panel>

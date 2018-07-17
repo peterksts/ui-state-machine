@@ -10,9 +10,10 @@ import { jsPlumbConfig } from './jsplumb-config.model';
 import { Store } from '../../models/store.model';
 import { ComponentRef } from '@angular/core/src/linker/component_factory';
 import { UbixTaskComponent } from '../ubix-task/ubix-task.component';
-import { Task } from '../../models/task.model';
+import { ITaskTemplate } from '../../models/task.model';
 import { DataSourceService } from '../../services/data-source.service';
 import { AddEndpointInputPorts, AddEndpointOutputPorts } from '../../services/tools.service';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-flow-builder',
@@ -48,7 +49,9 @@ export class FlowBuilderComponent implements OnInit {
 
   constructor(private resolver: ComponentFactoryResolver,
               private el: ElementRef,
-              private dataSource: DataSourceService) {
+              private dataSource: DataSourceService,
+              private taskService: TaskService,
+  ) {
   }
 
   ngOnInit(): void {
@@ -57,7 +60,7 @@ export class FlowBuilderComponent implements OnInit {
     this.el.nativeElement.setAttribute('class', 'flow-builder');
 
     // JS-PLUMB
-    // set defaults config jsPlumb
+    // set defaults taskTemplate jsPlumb
     const plumbConfig = jsPlumbConfig;
     plumbConfig.Container = this.el.nativeElement.id; // set container
     this.jsPlumbInstance = jsPlumb.getInstance(plumbConfig);
@@ -78,7 +81,15 @@ export class FlowBuilderComponent implements OnInit {
     this.minimapViewElementRef.nativeElement.style.left = 0 + 'px';
 
     // TASK
-    //
+    this.taskService.subscribeOnTaskSubmitted((data) => {
+      if (this.listUbixTask) {
+        this.listUbixTask.forEach((task) => {
+          if (task.instance.id = data.id) {
+            task.instance.setConfig(data);
+          }
+        });
+      }
+    });
   }
 
   // JS PLUMB
@@ -96,7 +107,7 @@ export class FlowBuilderComponent implements OnInit {
       if (this.listUbixTask) {
         let component: UbixTaskComponent;
         this.listUbixTask.forEach((task) => {
-          task.instance.selectedTaskOff();
+          task.instance.unselectedTask();
           if (task.instance.id === info.sourceId) {
             component = task.instance;
             task.instance.selectedTask();
@@ -118,7 +129,7 @@ export class FlowBuilderComponent implements OnInit {
     }
     if (this.selectUbixTask) {
       this.selectUbixTask.forEach((task) => {
-        task.selectedTaskOff();
+        task.unselectedTask();
       });
       this.selectUbixTask = null;
     }
@@ -168,7 +179,7 @@ export class FlowBuilderComponent implements OnInit {
 
   // TASK
   // createNewTask and add in mapUbixTask new task
-  private createNewTask(config: any, pos?: any) {
+  private createNewTask(taskTemplate: ITaskTemplate, pos?: any) {
     const newTaskId = 'task-' + new Date().getTime();
     const factories = Array.from(this.resolver['_factories'].keys());
     const factoryClass = <Type<UbixTaskComponent>> factories.find((factory: any) => factory.name === 'UbixTaskComponent');
@@ -176,7 +187,7 @@ export class FlowBuilderComponent implements OnInit {
     const taskComponentRef = this.viewContainerRef.createComponent(taskComponentFactory, -1, this.viewContainerRef.injector);
     // set input
     taskComponentRef.instance.id = newTaskId;
-    taskComponentRef.instance.config = config;
+    taskComponentRef.instance.taskTemplate = taskTemplate;
     taskComponentRef.instance.position = pos;
     taskComponentRef.instance.jsPlumbInstance = this.jsPlumbInstance;
     taskComponentRef.instance.onDeleteTask = this.deleteTask;
@@ -209,12 +220,12 @@ export class FlowBuilderComponent implements OnInit {
       positionY / (this.el.nativeElement.scrollHeight / 100));
   }
 
-  private createTask = (task: HTMLElement, positionX: number, positionY: number, config: Task): void => {
+  private createTask = (task: HTMLElement, positionX: number, positionY: number, taskTemplate: ITaskTemplate): void => {
     this.addTaskToMinimap(task, positionX / (this.el.nativeElement.scrollWidth / 100),
       positionY / (this.el.nativeElement.scrollHeight / 100),
       this.el.nativeElement.scrollWidth,
       this.el.nativeElement.scrollHeight,
-      config);
+      taskTemplate);
   }
 
   private selectedTask = (event: UbixTaskComponent): void => {
@@ -223,7 +234,7 @@ export class FlowBuilderComponent implements OnInit {
         return;
       }
       this.selectUbixTask.forEach((task) => {
-        task.selectedTaskOff();
+        task.unselectedTask();
       });
     }
     const list = [];
@@ -277,7 +288,7 @@ export class FlowBuilderComponent implements OnInit {
                  positionPercentY: number,
                  sizeFlowEditorScrollWidth: number,
                  sizeFlowEditorScrollHeight: number,
-                 config: any): void {
+                 taskTemplate: ITaskTemplate): void {
     const rectMiniMap = this.getMinimapBoundingClientRect();
     const newTaskEl = document.createElement('div');
 
@@ -317,8 +328,8 @@ export class FlowBuilderComponent implements OnInit {
       isTarget: false,
       connector: 'Straight',
     };
-    const countInput = config.consumes.length || 0;
-    const countOutput = config.produces.length || 0;
+    const countInput = taskTemplate.consumes.length || 0;
+    const countOutput = taskTemplate.produces.length || 0;
     AddEndpointInputPorts(newTaskEl.id, portOptions, countInput, this.jsPlumbInstanceMinimap, taskEl.id, '');
     AddEndpointOutputPorts(newTaskEl.id, portOptions, countOutput, this.jsPlumbInstanceMinimap, taskEl.id, '');
   }

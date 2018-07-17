@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Tasks } from '../data/tasks.const';
-import { Task } from '../models/task.model';
+import { ITaskTemplate } from '../models/task.model';
 
 @Injectable()
 export class DataSourceService {
@@ -12,7 +12,7 @@ export class DataSourceService {
   constructor(private http: HttpClient) {
   }
 
-  public getTasksLibrary(): Promise<Task[]> {
+  public getTasksLibrary(): Promise<ITaskTemplate[]> {
     return Promise.resolve(this.handleTasks(Tasks));
   }
 
