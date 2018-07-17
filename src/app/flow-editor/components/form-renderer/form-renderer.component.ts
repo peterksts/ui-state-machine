@@ -13,12 +13,16 @@ export class FormRendererComponent implements OnInit {
 
   @Input() schema: any;
   @Input() data: any;
+  @Input() formHidden: Boolean;
 
   private formElement: HTMLElement;
   private form: IBrutusinForm; // render, validate, getData, getRenderingContainer
-  private task: any;
+
+  public task: any;
 
   constructor(@Inject(BrutusinService) public brutusin: any, @Inject(TaskService) public taskService: TaskService) {
+    this.hideForm(true);
+
     taskService.subscribeOnTaskChanged((t) => {
       this.task = t;
       console.log(['form-renderer: task has been changed', t]);
@@ -46,6 +50,10 @@ export class FormRendererComponent implements OnInit {
 
   private defineFormContainer() {
     this.formElement = document.getElementById('form') as HTMLElement;
+  }
+
+  private hideForm(isHidden: Boolean) {
+    this.formHidden = isHidden;
   }
 
 }

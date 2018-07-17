@@ -1,5 +1,5 @@
-<div class="form-vertical" [hidden]="false">
-  <h5>task</h5>
+<div class="form-vertical" [hidden]="formHidden" *ngIf="task">
+  <h5>{{task.name}}}</h5>
   <div class="form-group" id="form">
     <!--<label for="field">Field</label>-->
     <!--<input id="field" class="form-control">-->
