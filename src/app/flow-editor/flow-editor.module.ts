@@ -1,8 +1,8 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import { routes } from './flow-editor.routing';
 import { DataSourceService } from './services/data-source.service';
@@ -12,6 +12,8 @@ import { UbixMovableViewDirective } from './directives/movable-view.directive';
 import { UbixTaskComponent } from './components/ubix-task/ubix-task.component';
 import { FlowBuilderComponent } from './components/flow-builder/flow-builder.component';
 import { MinimapComponent } from './components/mini-map/minimap.component';
+import { FormRendererComponent } from './components/form-renderer/form-renderer.component';
+import { BrutusinService } from './services/brutusin.service';
 
 @NgModule({
   declarations: [
@@ -21,6 +23,7 @@ import { MinimapComponent } from './components/mini-map/minimap.component';
     UbixTaskComponent,
     FlowBuilderComponent,
     MinimapComponent,
+    FormRendererComponent,
   ],
   imports: [
     CommonModule,
@@ -28,8 +31,10 @@ import { MinimapComponent } from './components/mini-map/minimap.component';
     RouterModule.forChild(routes)
   ],
   providers: [
-    DataSourceService
+    DataSourceService,
+    BrutusinService
   ],
   entryComponents: [UbixTaskComponent],
 })
-export class FlowEditorModule { }
+export class FlowEditorModule {
+}
