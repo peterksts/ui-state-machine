@@ -110,6 +110,9 @@ export class FlowBuilderComponent implements OnInit {
   ///////////
   private addBindJsPlumb(): void {
     this.jsPlumbInstance.bind('connection', (info) => {
+      if (info.targetId === info.sourceId) {
+        return;
+      }
       this.addConnectToMinimap(info.sourceEndpoint.id, info.targetEndpoint.id);
     });
     this.jsPlumbInstance.bind('connectionDetached', (info) => {
@@ -123,7 +126,35 @@ export class FlowBuilderComponent implements OnInit {
         let component: UbixTaskComponent; // for update selectUbixTask[]
         this.listUbixTask.forEach((task) => {
           task.instance.unselectedTask();
-          if (task.instance.id === info.sourceId) { // drag endpoint
+          // setPaintStyle all
+          if (task.instance.listInputIdPorts) {
+            task.instance.listInputIdPorts.forEach((portId) => {
+              const endpoint = this.jsPlumbInstance.getEndpoint(portId);
+              endpoint.setPaintStyle({stroke: '#00d305', fill: '#00d305'});
+            });
+          }
+          if (task.instance.listOutputIdPorts) {
+            task.instance.listOutputIdPorts.forEach((portId) => {
+              const endpoint = this.jsPlumbInstance.getEndpoint(portId);
+              endpoint.setPaintStyle({stroke: '#d3000b', fill: '#d3000b'});
+            });
+          }
+          // drag endpoint
+          if (task.instance.id === info.sourceId) {
+            // setPaintStyle bloc
+            if (task.instance.listInputIdPorts) {
+              task.instance.listInputIdPorts.forEach((portId) => {
+                const endpoint = this.jsPlumbInstance.getEndpoint(portId);
+                endpoint.setPaintStyle({stroke: '#d3000b', fill: '#d3000b'});
+              });
+            }
+            // setPaintStyle default
+            if (task.instance.listOutputIdPorts) {
+              task.instance.listOutputIdPorts.forEach((portId) => {
+                const endpoint = this.jsPlumbInstance.getEndpoint(portId);
+                endpoint.setPaintStyle({fill: 'rgba(95, 158, 160, 0.4)', stroke: 'rgba(95, 158, 160, 0.6)', strokeWidth: 3, radius: 5});
+              });
+            }
             // selected your task
             component = task.instance; // for update selectUbixTask[]
             task.instance.selectedTask();
@@ -137,6 +168,26 @@ export class FlowBuilderComponent implements OnInit {
           this.selectUbixTask = list;
         }
       }
+    });
+    this.jsPlumbInstance.bind('connectionDragStop', (info) => {
+      if (this.listUbixTask) {
+        this.listUbixTask.forEach((task) => {
+          // setPaintStyle default
+          if (task.instance.listInputIdPorts) {
+            task.instance.listInputIdPorts.forEach((portId) => {
+              const endpoint = this.jsPlumbInstance.getEndpoint(portId);
+              endpoint.setPaintStyle({fill: 'rgba(95, 158, 160, 0.4)', stroke: 'rgba(95, 158, 160, 0.6)', strokeWidth: 3, radius: 5});
+            });
+          }
+          if (task.instance.listOutputIdPorts) {
+            task.instance.listOutputIdPorts.forEach((portId) => {
+              const endpoint = this.jsPlumbInstance.getEndpoint(portId);
+              endpoint.setPaintStyle({fill: 'rgba(95, 158, 160, 0.4)', stroke: 'rgba(95, 158, 160, 0.6)', strokeWidth: 3, radius: 5});
+            });
+          }
+        });
+      }
+      // TODO: error source connect to target !
     });
   }
 

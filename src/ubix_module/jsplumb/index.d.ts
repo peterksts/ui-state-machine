@@ -380,6 +380,7 @@ declare module jsPlumb {
         // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         isSource: boolean;
         isTarget: boolean;
+        setPaintStyle: (paintStyle: PaintStyle) => void;
 
         setEndpoint(spec: EndpointSpec): void;
 
