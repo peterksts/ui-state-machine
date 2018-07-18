@@ -33,6 +33,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   @Input() onMoveTask: (id: string, positionX: number, positionY: number) => void;
   @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, taskTemplate: ITaskTemplate) => void;
   @Input() onSelectedTask: (event: UbixTaskComponent) => void;
+  @Input() getPercentZoom: () => number;
 
   private mouseStartPositionX: number;
   private mouseStartPositionY: number;
@@ -132,8 +133,8 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
 
     // add bind to jsPlumb
     this.addBindJsPlumb();
-    // set status load
-    this.loadStatus(StatusLoad.Off);
+    // TODO: set status load
+    this.loadStatus(StatusLoad.Ok);
     // select task
     this.selectedTask();
     this.onSelectedTask(this);
@@ -202,10 +203,11 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // MOVE TASK
   @HostListener('mousedown', ['$event'])
   mouseDown(event) {
-    this.mouseStartPositionX = event.clientX;
-    this.mouseStartPositionY = event.clientY;
+    this.mouseStartPositionX = Math.floor(event.clientX / (this.getPercentZoom() / 100));
+    this.mouseStartPositionY = Math.floor(event.clientY / (this.getPercentZoom() / 100));
     this.pressed = true;
 
     // select
@@ -223,25 +225,15 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
 
     const startPositionX = parseInt(this.el.nativeElement.style.left.slice(0, this.el.nativeElement.style.left.length - 2), null);
     const startPositionY = parseInt(this.el.nativeElement.style.top.slice(0, this.el.nativeElement.style.top.length - 2), null);
-    let newPositionX = startPositionX;
-    let newPositionY = startPositionY;
+    let newPositionX: number;
+    let newPositionY: number;
     // set new X position
-    if (event.clientX > this.mouseStartPositionX) {
-      newPositionX = startPositionX + (event.clientX - this.mouseStartPositionX);
-    }
-    if (event.clientX < this.mouseStartPositionX) {
-      newPositionX = startPositionX - (this.mouseStartPositionX - event.clientX);
-    }
+    newPositionX = startPositionX - (this.mouseStartPositionX - Math.floor(event.clientX / (this.getPercentZoom() / 100)));
     // set new Y position
-    if (event.clientY > this.mouseStartPositionY) {
-      newPositionY = startPositionY + (event.clientY - this.mouseStartPositionY);
-    }
-    if (event.clientY < this.mouseStartPositionY) {
-      newPositionY = startPositionY - (this.mouseStartPositionY - event.clientY);
-    }
+    newPositionY = startPositionY - (this.mouseStartPositionY - Math.floor(event.clientY / (this.getPercentZoom() / 100)));
     // set position
-    this.mouseStartPositionX = event.clientX;
-    this.mouseStartPositionY = event.clientY;
+    this.mouseStartPositionX = Math.floor(event.clientX / (this.getPercentZoom() / 100));
+    this.mouseStartPositionY = Math.floor(event.clientY / (this.getPercentZoom() / 100));
     this.el.nativeElement.style.left = newPositionX + 'px';
     this.el.nativeElement.style.top = newPositionY + 'px';
     this.jsPlumbInstance.repaintEverything();

@@ -214,6 +214,12 @@ declare module jsPlumb {
         unmakeSource(el: string | Element | Selector): jsPlumbInstance;
 
         unmakeTarget(el: string | Element | Selector): jsPlumbInstance;
+
+        // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        setZoom(zoom: number, repaintEverything?: boolean);
+
+        getZoom(): number;
     }
 
     interface ConnectionMadeEventInfo {

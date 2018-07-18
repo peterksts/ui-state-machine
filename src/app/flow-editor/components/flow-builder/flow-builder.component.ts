@@ -27,22 +27,36 @@ export class FlowBuilderComponent implements OnInit {
   private jsPlumbInstance: jsPlumbInstance;
   private listUbixTask: ComponentRef<UbixTaskComponent>[] = [];
   private selectUbixTask: UbixTaskComponent[];
-  // MINI-MAP
+  // minimap
   private jsPlumbInstanceMinimap: jsPlumbInstance;
   private suffixForIdTaskMinimap = '_mini-map-task';
   private positionMiniMap: {x: number, y: number} = {x: 20, y: 20};
   public getMinimapBoundingClientRect = (): ClientRect | DOMRect => {
-    return this.minimapElementRef.nativeElement.getBoundingClientRect();
-  }
+    return this.minimapAreaElementRef.nativeElement.getBoundingClientRect();
+  };
   public moveMinimapView = (percentPosition: { percentX: number, percentY: number }): void => {
-    this.setPositionScroll(percentPosition.percentX, percentPosition.percentY);
-  }
+    this.setPositionScroll(percentPosition.percentX, percentPosition.percentY, true);
+  };
+  // zoom-control
+  public percentZoom = 100;
+  private getPercentZoom = (): number => {
+    return this.percentZoom;
+  };
+  // move view
+  private pressed = false;
+  private startPositionMouse: { x: number, y: number };
 
-  @ViewChild('flowBuilderArea', { read: ViewContainerRef })
-  public viewContainerRef: ViewContainerRef;
+  @ViewChild('flowBuilderArea')
+  private flowBuilderAreaElementRef: ElementRef;
+
+  @ViewChild('spawnTask', { read: ViewContainerRef })
+  public spawnTaskViewContainerRef: ViewContainerRef;
 
   @ViewChild('minimap')
   private minimapElementRef: ElementRef;
+
+  @ViewChild('minimapArea')
+  private minimapAreaElementRef: ElementRef;
 
   @ViewChild('minimapView')
   private minimapViewElementRef: ElementRef;
@@ -62,14 +76,14 @@ export class FlowBuilderComponent implements OnInit {
     // JS-PLUMB
     // set defaults taskTemplate jsPlumb
     const plumbConfig = jsPlumbConfig;
-    plumbConfig.Container = this.el.nativeElement.id; // set container
+    plumbConfig.Container = this.flowBuilderAreaElementRef.nativeElement.id; // set container
     this.jsPlumbInstance = jsPlumb.getInstance(plumbConfig);
     // jsPlumbInstance add bind
     this.addBindJsPlumb();
 
     // MINI-MAP
     this.jsPlumbInstanceMinimap = jsPlumb.getInstance();
-    this.jsPlumbInstanceMinimap.setContainer(this.minimapElementRef.nativeElement.id);
+    this.jsPlumbInstanceMinimap.setContainer(this.minimapAreaElementRef.nativeElement.id);
     // set size mini-map view
     const rectMap = this.el.nativeElement.getBoundingClientRect();
     this.setSizeMinimapView(rectMap.right - rectMap.left,
@@ -93,6 +107,7 @@ export class FlowBuilderComponent implements OnInit {
   }
 
   // JS PLUMB
+  ///////////
   private addBindJsPlumb(): void {
     this.jsPlumbInstance.bind('connection', (info) => {
       this.addConnectToMinimap(info.sourceEndpoint.id, info.targetEndpoint.id);
@@ -105,12 +120,15 @@ export class FlowBuilderComponent implements OnInit {
     });
     this.jsPlumbInstance.bind('connectionDrag', (info) => {
       if (this.listUbixTask) {
-        let component: UbixTaskComponent;
+        let component: UbixTaskComponent; // for update selectUbixTask[]
         this.listUbixTask.forEach((task) => {
           task.instance.unselectedTask();
-          if (task.instance.id === info.sourceId) {
-            component = task.instance;
+          if (task.instance.id === info.sourceId) { // drag endpoint
+            // selected your task
+            component = task.instance; // for update selectUbixTask[]
             task.instance.selectedTask();
+            // to form builder
+            this.taskService.fireTaskChanged(task.instance.getConfig());
           }
         });
         if (component) {
@@ -124,20 +142,26 @@ export class FlowBuilderComponent implements OnInit {
 
   @HostListener('mousedown', ['$event'])
   mouseDown(event) {
-    if (event.target !== this.el.nativeElement) {
-      return;
-    }
-    if (this.selectUbixTask) {
-      this.selectUbixTask.forEach((task) => {
-        task.unselectedTask();
-      });
-      this.selectUbixTask = null;
+    // move view
+    this.mouseDownMoveView(event);
+
+    // unselected tasks
+    if (event.target === this.flowBuilderAreaElementRef.nativeElement) {
+      if (this.selectUbixTask) {
+        this.selectUbixTask.forEach((task) => {
+          task.unselectedTask();
+        });
+        this.selectUbixTask = null;
+      }
     }
   }
 
+  // drop-zone
   @HostListener('dragover', ['$event'])
   dragOver(event) {
-    if (!this.store || this.store.type !== 'new_ubix_task') {
+    if (!this.store ||
+      this.store.type !== 'new_ubix_task' ||
+      event.target !== this.flowBuilderAreaElementRef.nativeElement) {
       return;
     }
 
@@ -146,7 +170,9 @@ export class FlowBuilderComponent implements OnInit {
 
   @HostListener('drop', ['$event'])
   drop(event) {
-    if (!this.store || this.store.type !== 'new_ubix_task') {
+    if (!this.store ||
+      this.store.type !== 'new_ubix_task' ||
+      event.target !== this.flowBuilderAreaElementRef.nativeElement) {
       return;
     }
     const position = this.getMousePosition(event);
@@ -154,6 +180,7 @@ export class FlowBuilderComponent implements OnInit {
     this.createNewTask(this.store.data, {x: position.x, y: position.y, type: 'mouse'});
   }
 
+  // window flow builder
   @HostListener('scroll', ['$event'])
   scroll(event) {
     this.shiftMinimap(event.target.scrollLeft,
@@ -168,23 +195,70 @@ export class FlowBuilderComponent implements OnInit {
     const rectMap = this.el.nativeElement.getBoundingClientRect();
     this.setSizeMinimapView(rectMap.right - rectMap.left,
       rectMap.bottom - rectMap.top,
-      this.el.nativeElement.scrollWidth,
-      this.el.nativeElement.scrollHeight);
+      this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.width) * (this.percentZoom / 100),
+      this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.height) * (this.percentZoom / 100));
   }
 
-  private setPositionScroll(percentX: number, percentY: number) {
-    this.el.nativeElement.scrollLeft = (this.el.nativeElement.scrollWidth / 100) * percentX;
-    this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * percentY;
+  private setPositionScroll(x: number, y: number, inPercent?: boolean): void {
+    if (inPercent) {
+      this.el.nativeElement.scrollLeft = (this.el.nativeElement.scrollWidth / 100) * x;
+      this.el.nativeElement.scrollTop = (this.el.nativeElement.scrollHeight / 100) * y;
+    } else {
+      this.el.nativeElement.scrollLeft = x;
+      this.el.nativeElement.scrollTop = y;
+    }
+  }
+
+  // MOVE VIEW
+  ////////////
+  private moveView(e) {
+    const startPositionX = this.el.nativeElement.scrollLeft;
+    const startPositionY = this.el.nativeElement.scrollTop;
+    const newPositionMouse = {x: e.clientX / (this.percentZoom / 100), y: e.clientY / (this.percentZoom / 100)};
+    let newPositionX: number;
+    let newPositionY: number;
+    // set new X position
+    newPositionX = startPositionX - (newPositionMouse.x - this.startPositionMouse.x);
+    // set new Y position
+    newPositionY = startPositionY - (newPositionMouse.y - this.startPositionMouse.y);
+    // set position scroll
+    this.startPositionMouse = newPositionMouse;
+    this.el.nativeElement.scrollLeft = newPositionX;
+    this.el.nativeElement.scrollTop = newPositionY;
+  }
+
+  // mousedown
+  private mouseDownMoveView(event) {
+    if (event.target === this.flowBuilderAreaElementRef.nativeElement) {
+      document.body.style.cursor = 'move';
+      this.startPositionMouse = {x: event.clientX / (this.percentZoom / 100), y: event.clientY / (this.percentZoom / 100)};
+      this.pressed = true;
+    }
+  }
+
+  @HostListener('mousemove', ['$event'])
+  mouseMoveMoveView(event) {
+    if (this.pressed) {
+      this.moveView(event);
+    }
+  }
+
+  @HostListener('mouseup')
+  mouseUpMoveView() {
+    this.pressed = false;
+    document.body.style.cursor = 'default';
   }
 
   // TASK
+  ///////
   // createNewTask and add in mapUbixTask new task
   private createNewTask(taskTemplate: ITaskTemplate, pos?: any) {
     const newTaskId = 'task-' + new Date().getTime();
     const factories = Array.from(this.resolver['_factories'].keys());
     const factoryClass = <Type<UbixTaskComponent>> factories.find((factory: any) => factory.name === 'UbixTaskComponent');
     const taskComponentFactory = this.resolver.resolveComponentFactory(factoryClass);
-    const taskComponentRef = this.viewContainerRef.createComponent(taskComponentFactory, -1, this.viewContainerRef.injector);
+    const taskComponentRef = this.spawnTaskViewContainerRef.createComponent(taskComponentFactory, -1,
+      this.spawnTaskViewContainerRef.injector);
     // set input
     taskComponentRef.instance.id = newTaskId;
     taskComponentRef.instance.taskTemplate = taskTemplate;
@@ -194,6 +268,7 @@ export class FlowBuilderComponent implements OnInit {
     taskComponentRef.instance.onMoveTask = this.moveTask;
     taskComponentRef.instance.onCreateTask = this.createTask;
     taskComponentRef.instance.onSelectedTask = this.selectedTask;
+    taskComponentRef.instance.getPercentZoom = this.getPercentZoom;
     taskComponentRef.instance.el = taskComponentRef.location;
     taskComponentRef.instance.elViewRef = taskComponentRef.hostView;
     taskComponentRef.instance.init();
@@ -216,15 +291,15 @@ export class FlowBuilderComponent implements OnInit {
 
   private moveTask = (id: string, positionX: number, positionY: number) => {
     this.setPositionTaskInPercentMinimap(id,
-      positionX / (this.el.nativeElement.scrollWidth / 100),
-      positionY / (this.el.nativeElement.scrollHeight / 100));
+      positionX / (this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.width) / 100),
+      positionY / (this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.height) / 100));
   }
 
   private createTask = (task: HTMLElement, positionX: number, positionY: number, taskTemplate: ITaskTemplate): void => {
-    this.addTaskToMinimap(task, positionX / (this.el.nativeElement.scrollWidth / 100),
-      positionY / (this.el.nativeElement.scrollHeight / 100),
-      this.el.nativeElement.scrollWidth,
-      this.el.nativeElement.scrollHeight,
+    this.addTaskToMinimap(task, positionX / (this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.width) / 100),
+      positionY / (this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.height) / 100),
+      this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.width),
+      this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.height),
       taskTemplate);
   }
 
@@ -250,13 +325,22 @@ export class FlowBuilderComponent implements OnInit {
     this.selectUbixTask = list;
   }
 
+  private getMousePositionForTask = (event): { x: number, y: number } => {
+    const rectMap = this.el.nativeElement.getBoundingClientRect();
+    return {x: Math.floor((event.clientX - rectMap.left + this.el.nativeElement.scrollLeft) / (this.percentZoom / 100)),
+            y: Math.floor((event.clientY - rectMap.top + this.el.nativeElement.scrollTop) / (this.percentZoom / 100))};
+  }
+
   // TOOLS
-  private getMousePosition(event): { x: number, y: number } {
+  ////////
+  private getMousePosition = (event): { x: number, y: number } => {
     const posMouseX = event.offsetX === undefined ? event.layerX : event.offsetX;
     const posMouseY = event.offsetY === undefined ? event.layerY : event.offsetY;
-    const posScrollLeft = event.target.scrollLeft;
-    const posScrollTop = event.target.scrollTop;
-    return {x: posMouseX + posScrollLeft, y: posMouseY + posScrollTop};
+    return {x: posMouseX / (this.percentZoom / 100), y: posMouseY / (this.percentZoom / 100)};
+  }
+
+  private parseStyleInt(str: string): number {
+    return parseInt(str.slice(0, str.length - 2), null);
   }
 
   // MINI-MAP
@@ -306,7 +390,7 @@ export class FlowBuilderComponent implements OnInit {
     newTaskEl.style.width = taskEl.style.width;
     newTaskEl.style.height = taskEl.style.height;
     // append
-    this.minimapElementRef.nativeElement.appendChild(newTaskEl);
+    this.minimapAreaElementRef.nativeElement.appendChild(newTaskEl);
     // get size
     const rectnewTaskEl = taskEl.getBoundingClientRect();
     const sizeWidth = rectnewTaskEl.right - rectnewTaskEl.left;
@@ -387,5 +471,29 @@ export class FlowBuilderComponent implements OnInit {
 
     this.jsPlumbInstanceMinimap.deleteConnection(sourceEndpoint.connectorSelector());
     this.jsPlumbInstanceMinimap.deleteConnection(targetEndpoint.connectorSelector());
+  }
+
+  // ZOOM-CONTROL
+  // input: percent
+  changeZoom(change: number) {
+    if (this.percentZoom + change < 40 || this.percentZoom + change > 100) {
+      return; // changeZoom > 100 or < 50
+    }
+
+    const rectMap = this.el.nativeElement.getBoundingClientRect();
+    const widthArea = this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.width);
+    const heightArea = this.parseStyleInt(this.flowBuilderAreaElementRef.nativeElement.style.height);
+
+    const newZoom = (this.percentZoom + change) / 100;
+    if (newZoom * widthArea < (rectMap.right - rectMap.left) ||
+      newZoom * heightArea < (rectMap.bottom - rectMap.top)) {
+      return;
+    }
+
+    this.percentZoom += change;
+    this.jsPlumbInstance.setZoom(this.percentZoom / 100, false);
+    this.flowBuilderAreaElementRef.nativeElement.style.zoom = this.percentZoom + '%';
+    this.jsPlumbInstance.repaintEverything();
+    this.windowResize();
   }
 }
