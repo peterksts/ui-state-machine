@@ -14,7 +14,6 @@ import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from 
 import { ITaskTemplate, Task } from '../../models/task.model';
 import { PortOptions } from '../../models/port-options.model';
 import { StatusLoad } from '../../models/status-load.model';
-import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-ubix-task',
@@ -51,8 +50,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   @ViewChild('iconLoad')
   private iconLoad: ElementRef;
 
-  constructor(private taskService: TaskService,
-  ) { }
+  constructor() { }
 
   ngAfterViewInit(): void {
     this.jsPlumbInstance.repaintEverything();
@@ -94,7 +92,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.title = this.taskTemplate.name || 'task';
     this.borderColor = this.el.nativeElement.style.borderColor;
 
-    // set position
+    // set position task
     if (this.position && this.position.x && this.position.y) {
       if (this.position.type === 'mouse') {
         const centerEl = GetCenterElement(this.el.nativeElement);
@@ -108,7 +106,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.el.nativeElement.style.left = this.position.x + 'px';
     this.el.nativeElement.style.top = this.position.y + 'px';
 
-    // add endpoint
+    // add ports for task
     const countInput = this.taskTemplate.consumes ? this.taskTemplate.consumes.length : 0;
     const countOutput = this.taskTemplate.produces ? this.taskTemplate.produces.length : 0;
     const inputPorts = AddEndpointInputPorts(this.id, PortOptions, countInput, this.jsPlumbInstance, this.id, '');
