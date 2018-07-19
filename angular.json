@@ -27,6 +27,7 @@
               "src/styles.css"
             ],
             "scripts": [
+              "./node_modules/vega/build/vega.js"
             ]
           },
           "configurations": {

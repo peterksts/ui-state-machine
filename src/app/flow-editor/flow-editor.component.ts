@@ -3,6 +3,8 @@ import { Task } from './models/task.model';
 import { Minimap } from './models/minimap.model';
 import { DataSourceService } from './services/data-source.service';
 import { Store } from './models/store.model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {VegaComponent} from './components/vega/vega.component';
 
 @Component({
   selector: 'app-flow-editor',
@@ -14,7 +16,8 @@ export class FlowEditorComponent implements OnInit {
   public tasksLibrary: any;
   public store: Store = new Store();
 
-  constructor(private dataSource: DataSourceService) {
+  constructor(private dataSource: DataSourceService,
+              private modal: NgbModal) {
   }
 
   ngOnInit() {
@@ -26,5 +29,10 @@ export class FlowEditorComponent implements OnInit {
 
   public getCategoryName(category: string): string {
     return category + ' Tasks';
+  }
+
+  public vega() {
+    const vega = this.modal.open(VegaComponent);
+    vega.result.then().catch();
   }
 }

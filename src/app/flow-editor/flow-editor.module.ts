@@ -11,6 +11,7 @@ import { UbixTaskViewDirective } from './directives/ubix-task-view.directive';
 import { UbixMovableViewDirective } from './directives/movable-view.directive';
 import { UbixTaskComponent } from './components/ubix-task/ubix-task.component';
 import { FlowBuilderComponent } from './components/flow-builder/flow-builder.component';
+import {VegaComponent} from './components/vega/vega.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { FlowBuilderComponent } from './components/flow-builder/flow-builder.com
     UbixMovableViewDirective,
     UbixTaskComponent,
     FlowBuilderComponent,
+    VegaComponent
   ],
   imports: [
     CommonModule,
@@ -28,6 +30,9 @@ import { FlowBuilderComponent } from './components/flow-builder/flow-builder.com
   providers: [
     DataSourceService
   ],
-  entryComponents: [UbixTaskComponent],
+  entryComponents: [
+    UbixTaskComponent,
+    VegaComponent
+  ]
 })
 export class FlowEditorModule { }

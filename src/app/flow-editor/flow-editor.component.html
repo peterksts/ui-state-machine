@@ -1,7 +1,7 @@
 <div class="fluid-container flow-editor-root">
   <div class="row">
     <div class="col-2" style="overflow: auto">
-      <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+      <ngb-accordion>
         <ngb-panel title="{{getCategoryName(cat.name)}}"
                    *ngFor="let cat of tasksLibrary">
           <ng-template ngbPanelContent>
@@ -9,7 +9,7 @@
                  draggable="true"
                  (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: task})"
                  (dragend)="store.setStore({type: null, event: null, data: null})"
-                 class="btn btn-outline-warning select-task"
+                 class="btn btn-outline-warning select-task w-100"
                  *ngFor="let task of cat.tasks">
               {{task.name}}
             </div>
@@ -18,6 +18,9 @@
       </ngb-accordion>
     </div>
     <div class="col-8">
+      <div>
+        <div class="btn btn-primary" (click)="vega()">Vega</div>
+      </div>
       <app-flow-builder ubix-movable-view [store]="store"></app-flow-builder>
     </div>
     <div class="col-2">
