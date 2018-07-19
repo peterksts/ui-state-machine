@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
-import { Task } from './models/task.model';
-import { Minimap } from './models/minimap.model';
-import { DataSourceService } from './services/data-source.service';
+import { Component, OnInit } from '@angular/core';
+
+import { ITaskTemplate, Task } from './models/task.model';
 import { Store } from './models/store.model';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {VegaComponent} from './components/vega/vega.component';
+import { DataSourceService } from './services/data-source.service';
 
 @Component({
   selector: 'app-flow-editor',
@@ -21,7 +21,7 @@ export class FlowEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dataSource.getTasksLibrary().then((res: Task[]) => {
+    this.dataSource.getTasksLibrary().then((res: ITaskTemplate[]) => {
       // this.dataSource.getTasks().then((res: Task[]) => {
       this.tasksLibrary = res;
     });

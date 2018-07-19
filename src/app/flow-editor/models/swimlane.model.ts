@@ -119,7 +119,7 @@ export class Swimlane {
     newTask.setAttribute('onselectstart', 'return false');
     newTask.setAttribute('onmousedown', 'return false');
     newTask.setAttribute('name', this.nameTask);
-    // newTask.setAttribute('config', JSON.stringify(config));
+    // newTask.setAttribute('taskTemplate', JSON.stringify(taskTemplate));
     this.container.appendChild(newTask);
     // set position
     if (pos && pos.x && pos.y) {
@@ -168,7 +168,7 @@ export class Swimlane {
     //   pos.y / (this.el.nativeElement.scrollHeight / 100),
     //   this.container.scrollWidth,
     //   this.container.scrollHeight,
-    //   config);
+    //   taskTemplate);
 
     return newTaskId;
   }

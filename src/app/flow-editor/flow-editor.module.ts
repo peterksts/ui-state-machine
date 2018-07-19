@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import {BrowserModule} from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -11,7 +11,10 @@ import { UbixTaskViewDirective } from './directives/ubix-task-view.directive';
 import { UbixMovableViewDirective } from './directives/movable-view.directive';
 import { UbixTaskComponent } from './components/ubix-task/ubix-task.component';
 import { FlowBuilderComponent } from './components/flow-builder/flow-builder.component';
-import {VegaComponent} from './components/vega/vega.component';
+import { VegaComponent } from './components/vega/vega.component';
+import { FormRendererComponent } from './components/form-renderer/form-renderer.component';
+import { BrutusinService } from './services/brutusin.service';
+import { UbixMovableMinimapViewDirective } from './directives/movable-minimap-view.directive';
 
 @NgModule({
   declarations: [
@@ -20,7 +23,9 @@ import {VegaComponent} from './components/vega/vega.component';
     UbixMovableViewDirective,
     UbixTaskComponent,
     FlowBuilderComponent,
-    VegaComponent
+    VegaComponent,
+    FormRendererComponent,
+    UbixMovableMinimapViewDirective
   ],
   imports: [
     CommonModule,
@@ -28,11 +33,13 @@ import {VegaComponent} from './components/vega/vega.component';
     RouterModule.forChild(routes)
   ],
   providers: [
-    DataSourceService
+    DataSourceService,
+    BrutusinService
   ],
   entryComponents: [
     UbixTaskComponent,
     VegaComponent
   ]
 })
-export class FlowEditorModule { }
+export class FlowEditorModule {
+}

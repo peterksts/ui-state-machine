@@ -1,7 +1,31 @@
 <div id="flow-builder-area"
-     #flowBuilderArea></div>
-<div id="minimap" class="minimap">
-  <div class="minimap-view" id="minimap-view" name="minimap-view"
-       onselectstart="return false" onmousedown="return false">
+     style="height: 2000px; width: 2000px;"
+     #flowBuilderArea>
+  <div #spawnTask></div>
+</div>
+<div id="minimap" class="minimap"
+     #minimap>
+  <div id="minimap-area" class="minimap-area"
+       #minimapArea>
+    <div ubix-movable-minimap-view
+         [getMinimapBoundingClientRect]="getMinimapBoundingClientRect"
+         [moveMinimapView]="moveMinimapView"
+         class="minimap-view" id="minimap-view" name="minimap-view"
+         onselectstart="return false" onmousedown="return false"
+         #minimapView>
+    </div>
+  </div>
+  <div id="zoom-controls" class="zoom-controls">
+    <div class="row p-0 m-0">
+      <div class="col-4 p-0 m-0 icon">
+        <i class="fa fa-search-minus" aria-hidden="true" (click)="changeZoom(-10)"></i>
+      </div>
+      <div class="col-4 p-0 m-0 percent">
+        <p>{{ percentZoom }}%</p>
+      </div>
+      <div class="col-4 p-0 m-0 icon">
+        <i class="fa fa-search-plus" aria-hidden="true" (click)="changeZoom(10)"></i>
+      </div>
+    </div>
   </div>
 </div>

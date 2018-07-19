@@ -1,12 +1,19 @@
-import {Component, Input, HostListener, ElementRef, OnDestroy, ViewRef, AfterViewInit, ViewChild} from '@angular/core';
+import { Component,
+  Input,
+  HostListener,
+  ElementRef,
+  OnDestroy,
+  ViewRef,
+  AfterViewInit,
+  ViewChild
+} from '@angular/core';
 
 import { jsPlumbInstance } from '../../../../ubix_module/jsplumb';
 
 import { AddEndpointInputPorts, AddEndpointOutputPorts, GetCenterElement } from '../../services/tools.service';
-import { Task } from '../../models/task.model';
+import { ITaskTemplate, Task } from '../../models/task.model';
 import { PortOptions } from '../../models/port-options.model';
 import { StatusLoad } from '../../models/status-load.model';
-import {ComponentRef} from '@angular/core/src/linker/component_factory';
 
 @Component({
   selector: 'app-ubix-task',
@@ -18,21 +25,22 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   @Input() id: string;
   @Input() el: ElementRef;
   @Input() elViewRef: ViewRef;
-  @Input() config: Task;
+  @Input() taskTemplate: ITaskTemplate;
   @Input() position: { x: number, y: number, type: string };
   @Input() jsPlumbInstance: jsPlumbInstance;
-  @Input() onDeleteTask: (id: string) => void;
+  @Input() onDeleteTask: (event: UbixTaskComponent) => void;
   @Input() onMoveTask: (id: string, positionX: number, positionY: number) => void;
-  @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, config: Task) => void;
+  @Input() onCreateTask: (task: HTMLElement, positionX: number, positionY: number, taskTemplate: ITaskTemplate) => void;
   @Input() onSelectedTask: (event: UbixTaskComponent) => void;
+  @Input() getPercentZoom: () => number;
 
   private mouseStartPositionX: number;
   private mouseStartPositionY: number;
   private pressed = false;
-  private listInputIdPorts: string[] = [];
-  private listOutputIdPorts: string[] = [];
   private borderColor: string;
-  private fieldsMemory: any;
+  private config: Task;
+  public listInputIdPorts: string[] = [];
+  public listOutputIdPorts: string[] = [];
   public isLoad = false;
   public title: string;
 
@@ -49,8 +57,6 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // callback
-    this.onDeleteTask(this.id);
     // delete jsPlumb connections and endpoints
     this.listInputIdPorts.forEach((portId) => {
       const endpoint =  this.jsPlumbInstance.getEndpoint(portId);
@@ -62,6 +68,9 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
       this.jsPlumbInstance.deleteConnection(endpoint.connectorSelector());
       this.jsPlumbInstance.deleteEndpoint(endpoint);
     });
+
+    // callback for flow-builder
+    this.onDeleteTask(this);
   }
 
   public destroy(check?: boolean): void {
@@ -75,13 +84,15 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
   }
 
   public init(): void {
-    // set settings
+    // set defaults settings
     this.el.nativeElement.id = this.id;
     this.el.nativeElement.setAttribute('class', 'flow-editor-task');
-    this.title = this.config.name || 'task';
+    this.el.nativeElement.setAttribute('onselectstart', 'return false');
+    this.el.nativeElement.setAttribute('onmousedown', 'return false');
+    this.title = this.taskTemplate.name || 'task';
     this.borderColor = this.el.nativeElement.style.borderColor;
 
-    // set position
+    // set position task
     if (this.position && this.position.x && this.position.y) {
       if (this.position.type === 'mouse') {
         const centerEl = GetCenterElement(this.el.nativeElement);
@@ -94,12 +105,13 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     }
     this.el.nativeElement.style.left = this.position.x + 'px';
     this.el.nativeElement.style.top = this.position.y + 'px';
-    // add endpoint
-    const countInput = this.config.consumes.length || 0;
-    const countOutput = this.config.produces.length || 0;
+
+    // add ports for task
+    const countInput = this.taskTemplate.consumes ? this.taskTemplate.consumes.length : 0;
+    const countOutput = this.taskTemplate.produces ? this.taskTemplate.produces.length : 0;
     const inputPorts = AddEndpointInputPorts(this.id, PortOptions, countInput, this.jsPlumbInstance, this.id, '');
     const outputPorts = AddEndpointOutputPorts(this.id, PortOptions, countOutput, this.jsPlumbInstance, this.id, '');
-    // set list
+    // set list port
     if (inputPorts) {
       inputPorts.forEach((port) => {
         this.listInputIdPorts.push(port.id);
@@ -110,14 +122,17 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
         this.listOutputIdPorts.push(port.id);
       });
     }
-    // callback
-    if (this.onCreateTask) {
-      this.onCreateTask(this.el.nativeElement, this.position.x, this.position.y, this.config);
-    }
+
+    // set config
+    this.config = new Task(this.taskTemplate, this.id, {}, StatusLoad.Off);
+
+    // callback for flow-builder
+    this.onCreateTask(this.el.nativeElement, this.position.x, this.position.y, this.taskTemplate);
+
     // add bind to jsPlumb
     this.addBindJsPlumb();
-    // set status load
-    this.loadStatus(StatusLoad.Off);
+    // TODO: set status load
+    this.loadStatus(StatusLoad.Ok);
     // select task
     this.selectedTask();
     this.onSelectedTask(this);
@@ -127,36 +142,37 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     this.el.nativeElement.classList.add('flow-editor-task-select');
   }
 
-  public selectedTaskOff() {
+  public unselectedTask() {
     this.el.nativeElement.classList.remove('flow-editor-task-select');
   }
 
   // JS PLUMB
   private addBindJsPlumb(): void {
-    // add connection and set label connection
+    // add bind connection
     this.jsPlumbInstance.bind('connection', (info) => {
       // Output
       if (info.sourceId === this.id) {
-        // set config
-        info.connection.setParameter('config', () => {
-          return this.config;
+        // set taskTemplate
+        info.connection.setParameter('taskTemplate', () => {
+          return this.taskTemplate;
         });
       // Input
       } else { if (info.targetId === this.id) {
-        // get config
-        const getInputConfig = info.connection.getParameter<() => Task>('config');
+        // get taskTemplate
+        const getInputConfig = info.connection.getParameter<() => Task>('taskTemplate');
       }
       }
     });
   }
 
   // PROPERTY EDITOR
-  private setFields = (fields: any): void => {
-    this.fieldsMemory = fields;
+  public setConfig(config: Task): void {
+    this.config = config;
+    this.loadStatus(this.config.statusLoad);
   }
 
-  private setLoadStatus = (status: StatusLoad): void => {
-    this.loadStatus(status);
+  public getConfig(): Task {
+    return this.config;
   }
 
   // LOAD
@@ -166,7 +182,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
         this.isLoad = false;
         // set param out port
         this.listOutputIdPorts.forEach((portId) => {
-          this.jsPlumbInstance.getEndpoint(portId).isSource = false;
+          this.jsPlumbInstance.getEndpoint(portId).isSource = false; // connection off
         });
         break;
       case StatusLoad.On:
@@ -176,7 +192,7 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
         this.isLoad = false;
         // set param out port
         this.listOutputIdPorts.forEach((portId) => {
-          this.jsPlumbInstance.getEndpoint(portId).isSource = true;
+          this.jsPlumbInstance.getEndpoint(portId).isSource = true; // connection on
         });
         break;
       case StatusLoad.Bad:
@@ -185,13 +201,17 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // MOVE TASK
   @HostListener('mousedown', ['$event'])
   mouseDown(event) {
-    this.mouseStartPositionX = event.clientX;
-    this.mouseStartPositionY = event.clientY;
+    this.mouseStartPositionX = Math.floor(event.clientX / (this.getPercentZoom() / 100));
+    this.mouseStartPositionY = Math.floor(event.clientY / (this.getPercentZoom() / 100));
     this.pressed = true;
-    // TODO: property editor
+
+    // select
     this.selectedTask();
+
+    // callback for flow-builder
     this.onSelectedTask(this);
   }
 
@@ -203,32 +223,21 @@ export class UbixTaskComponent implements AfterViewInit, OnDestroy {
 
     const startPositionX = parseInt(this.el.nativeElement.style.left.slice(0, this.el.nativeElement.style.left.length - 2), null);
     const startPositionY = parseInt(this.el.nativeElement.style.top.slice(0, this.el.nativeElement.style.top.length - 2), null);
-    let newPositionX = startPositionX;
-    let newPositionY = startPositionY;
+    let newPositionX: number;
+    let newPositionY: number;
     // set new X position
-    if (event.clientX > this.mouseStartPositionX) {
-      newPositionX = startPositionX + (event.clientX - this.mouseStartPositionX);
-    }
-    if (event.clientX < this.mouseStartPositionX) {
-      newPositionX = startPositionX - (this.mouseStartPositionX - event.clientX);
-    }
+    newPositionX = startPositionX - (this.mouseStartPositionX - Math.floor(event.clientX / (this.getPercentZoom() / 100)));
     // set new Y position
-    if (event.clientY > this.mouseStartPositionY) {
-      newPositionY = startPositionY + (event.clientY - this.mouseStartPositionY);
-    }
-    if (event.clientY < this.mouseStartPositionY) {
-      newPositionY = startPositionY - (this.mouseStartPositionY - event.clientY);
-    }
+    newPositionY = startPositionY - (this.mouseStartPositionY - Math.floor(event.clientY / (this.getPercentZoom() / 100)));
     // set position
-    this.mouseStartPositionX = event.clientX;
-    this.mouseStartPositionY = event.clientY;
+    this.mouseStartPositionX = Math.floor(event.clientX / (this.getPercentZoom() / 100));
+    this.mouseStartPositionY = Math.floor(event.clientY / (this.getPercentZoom() / 100));
     this.el.nativeElement.style.left = newPositionX + 'px';
     this.el.nativeElement.style.top = newPositionY + 'px';
     this.jsPlumbInstance.repaintEverything();
-    // callback
-    if (this.onMoveTask) {
-      this.onMoveTask(this.id, newPositionX, newPositionY);
-    }
+
+    // callback for flow-builder
+    this.onMoveTask(this.id, newPositionX, newPositionY);
   }
 
   @HostListener('body:mouseup', ['$event'])

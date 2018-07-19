@@ -11,7 +11,7 @@ export const PortOptions: EndpointOptions = {
   type: 'Dot',
   // isSource: false,
   // isTarget: true,
-  connector: 'Bezier',
+  connector: 'Flowchart',
   paintStyle: {fill: 'rgba(95, 158, 160, 0.4)', stroke: 'rgba(95, 158, 160, 0.6)', strokeWidth: 3, radius: 5},
   hoverPaintStyle: {stroke: 'rgba(95, 158, 160, 0.9)', fill: 'rgba(95, 158, 160, 0.7)'},
   connectorStyle: {stroke: 'rgba(102, 96, 255, 0.9)', strokeWidth: 1},

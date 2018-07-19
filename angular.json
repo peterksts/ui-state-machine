@@ -24,10 +24,12 @@
             ],
             "styles": [
               "./node_modules/bootstrap/scss/bootstrap.scss",
+              "./node_modules/brutusin-json-forms/dist/css/brutusin-json-forms.min.css",
               "src/styles.css"
             ],
             "scripts": [
-              "./node_modules/vega/build/vega.js"
+              "./node_modules/vega/build/vega.js",
+              "./node_modules/brutusin-json-forms/dist/js/brutusin-json-forms.js"
             ]
           },
           "configurations": {

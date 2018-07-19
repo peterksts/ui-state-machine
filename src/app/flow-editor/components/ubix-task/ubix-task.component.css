@@ -2,8 +2,23 @@
   color: red;
 }
 
-.visibleOff {
+.visible_off {
   display: none;
   visibility: hidden;
 }
 
+.icon {
+  font-size: 22px;
+  margin-left: 5px;
+}
+
+.container_ubix_task {
+  padding: 0px;
+  margin: 0px;
+
+  /* user select */
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+}

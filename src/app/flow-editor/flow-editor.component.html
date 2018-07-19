@@ -7,33 +7,24 @@
           <ng-template ngbPanelContent>
             <div ubix-task-view
                  draggable="true"
-                 (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: task})"
+                 (dragstart)="store.setStore({type: 'new_ubix_task', event: $event, data: taskTemplate})"
                  (dragend)="store.setStore({type: null, event: null, data: null})"
                  class="btn btn-outline-warning select-task w-100"
-                 *ngFor="let task of cat.tasks">
-              {{task.name}}
+                 *ngFor="let taskTemplate of cat.tasks">
+              {{taskTemplate.name}}
             </div>
           </ng-template>
         </ngb-panel>
       </ngb-accordion>
     </div>
-    <div class="col-8">
+    <div class="col-7">
       <div>
         <div class="btn btn-primary" (click)="vega()">Vega</div>
       </div>
       <app-flow-builder ubix-movable-view [store]="store"></app-flow-builder>
     </div>
-    <div class="col-2">
-      <div class="form-vertical">
-        <h5>Property Editor</h5>
-        <div class="form-group">
-          <label for="field">Field</label>
-          <input id="field" class="form-control">
-        </div>
-        <div class="btn btn-primary">
-          Save
-        </div>
-      </div>
+    <div class="col-3">
+      <app-form-renderer></app-form-renderer>
     </div>
   </div>
 </div>

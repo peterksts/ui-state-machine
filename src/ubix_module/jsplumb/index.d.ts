@@ -214,6 +214,12 @@ declare module jsPlumb {
         unmakeSource(el: string | Element | Selector): jsPlumbInstance;
 
         unmakeTarget(el: string | Element | Selector): jsPlumbInstance;
+
+        // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        setZoom(zoom: number, repaintEverything?: boolean);
+
+        getZoom(): number;
     }
 
     interface ConnectionMadeEventInfo {
@@ -374,6 +380,7 @@ declare module jsPlumb {
         // TODO: my !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         isSource: boolean;
         isTarget: boolean;
+        setPaintStyle: (paintStyle: PaintStyle) => void;
 
         setEndpoint(spec: EndpointSpec): void;
 
